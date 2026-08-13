@@ -24,9 +24,11 @@ from monitors.base import ProductSnapshot
 from notify import Notifier
 
 # 盯「已知商品碼」的 monitor
-ITEM_MONITORS = [MomoMonitor(), PChomeMonitor(), FunboxMonitor()]
-# 掃「搜尋頁抓新品」的發現式 monitor(一站一個 adapter)
-DISCOVERY_MONITORS = [EsliteMonitor()]
+ITEM_MONITORS = [PChomeMonitor(), FunboxMonitor()]
+# 掃「搜尋頁抓新品」的發現式 monitor(一站一個 adapter)。
+# momo 在這裡而不在上面:它的單品 API 對機房 IP 一律回「查無商品」,但搜尋頁
+# 是通的、而且內嵌完整商品資料,所以只能從搜尋這一側進去(見 monitors/momo.py)。
+DISCOVERY_MONITORS = [MomoMonitor(), EsliteMonitor()]
 
 
 def run_once(cal: Calendar, notifier: Notifier, now: int | None = None) -> int:

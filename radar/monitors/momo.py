@@ -1,165 +1,168 @@
-"""momo 購物網 monitor(MVP 主力,已逆向端點)。
+"""momo 購物網 monitor —— 掃搜尋頁,抓目前在架的 Beyblade X 商品。
 
-手法(本 session 前置已驗證,可能改版,上線前用 DevTools Network 再確認一次):
-    POST https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo
-    body(JSON): {"goodsCode": "<商品碼>"}
-    回應重點欄位(位於 rtnGoodsData):
-        - onSaleTimestamp          開賣時間戳(毫秒)
-        - goodsStock               庫存
-        - goodsPaymentDescription  售價/付款說明字串
-        - (價格相關欄位命名各版本不同,這裡用多個候選鍵防呆)
+為什麼是「搜尋式」而不是「盯商品碼」:
+    原本的做法是 POST /api/moecapp/getGoodsRealTimeInfo 查單一 goodsCode。
+    實測(GitHub Actions runner,見 tools/probe_sites.py)那條路是死的:
+        - 商品頁回 200,但內容是 momo 的擋機器人頁(title「Mobile管理訊息」),
+          沒有價格、沒有 ld+json。
+        - 即時資訊 API 回 200 但 {"success":false,"resultMessage":"查無商品"},
+          換 payload、換 header、先養 cookie 都一樣。(把欄位名改掉會回
+          「goodsCode is empty!!!」,可見端點活著、也讀得到我們,是它不給。)
+        - apisearch.momoshop.com.tw 直接 403 Access Denied。
+    但**搜尋頁是開的**,而且整包商品資料就內嵌在裡面:
+        "goodsInfoList":[{"goodsCode":"15162670",
+          "goodsName":"【TAKARA TOMY】BEYBLADE X 戰鬥陀螺X UX-15 鮫鯊狂鱗改造組",
+          "goodsPrice":"$$795","goodsPriceOri":"$$795","goodsStock":"168", …}]
+    所以改成掃搜尋頁。這也比盯單品好:新品一上架就會被掃到,不必先知道商品碼。
 
-設計原則:
-    - 防呆解析:momo 會改欄位,任何欄位缺漏都不應炸掉整輪,回傳能拿到多少算多少。
-    - 低頻:由 run.py 控制輪詢間隔,這裡不自帶迴圈。
-    - 不繞登入牆、不整批抓取,只查設定清單裡的單品。
+只收 momo 自營商品(純數字 goodsCode)。搜尋結果裡另有一批 "TP…" 開頭的
+摩天商城賣家商品,它們的商品頁網址規則尚未實測,寧可不收也不要給出錯的連結;
+而且雷達要盯的是「原價開賣」,自營商品正是原價那一側。
 """
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Optional
+from urllib.parse import quote
 
-import requests
-
-from config import SETTINGS, Watch
+from config import ORIGINAL_PRICES, SETTINGS, Search
 from monitors.base import ProductSnapshot
+from monitors.discovery import DiscoveryMonitor
 
-API_URL = "https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo"
-GOODS_URL = "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code={code}"
+SEARCH_URL = "https://www.momoshop.com.tw/search/searchShop.jsp?keyword={kw}"
+PRODUCT_URL = "https://www.momoshop.com.tw/product/{code}"
+
+# Beyblade X 的型號規則就是 BX/UX/CX + 兩位數。限定這三個字首,才不會把
+# 「5-70DB」「3-80S」這類齒輪規格或其他品牌代號誤判成型號。
+_MODEL_RE = re.compile(r"(?<![A-Za-z0-9])((?:BX|UX|CX)-\d{2})(?![0-9])")
+_GOODS_LIST_RE = re.compile(r'"goodsInfoList"\s*:\s*\[')
+_NUMERIC_CODE_RE = re.compile(r"^\d{6,}$")
 
 
-class MomoMonitor:
+class MomoMonitor(DiscoveryMonitor):
     platform = "momo"
 
-    def __init__(self, session: Optional[requests.Session] = None):
-        self._session = session or requests.Session()
+    def _search(self, search: Search) -> list[ProductSnapshot]:
+        resp = self._session.get(
+            SEARCH_URL.format(kw=quote(search.keyword)),
+            headers={
+                "User-Agent": SETTINGS.user_agent,
+                "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+                "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+            },
+            timeout=SETTINGS.http_timeout_sec,
+        )
+        resp.raise_for_status()
+        return self.parse_search(resp.text)
 
-    def fetch(self, watches: list[Watch]) -> list[ProductSnapshot]:
-        out: list[ProductSnapshot] = []
-        for w in watches:
-            if w.platform != self.platform or not w.item_id:
+    @classmethod
+    def parse_search(cls, html: str) -> list[ProductSnapshot]:
+        """搜尋頁 HTML → ProductSnapshot 清單。抽成 classmethod 方便用真實樣本測試。"""
+        snaps: list[ProductSnapshot] = []
+        seen: set[str] = set()
+        for goods in cls.extract_goods(html):
+            snap = cls.to_snapshot(goods)
+            if snap is None or snap.item_id in seen:
                 continue
-            snap = self._fetch_one(w)
-            if snap is not None:
-                out.append(snap)
+            seen.add(snap.item_id)
+            snaps.append(snap)
+        return snaps
+
+    @staticmethod
+    def extract_goods(html: str) -> list[dict]:
+        """把 goodsInfoList 陣列從頁面裡挖出來。
+
+        這包 JSON 是塞在 JavaScript 字串裡的,所以引號是跳脫過的;先還原,再讓
+        JSON decoder 自己找到陣列結尾 —— 正規表達式沒辦法可靠地配對巢狀括號。
+        """
+        text = html.replace('\\"', '"')
+        out: list[dict] = []
+        for m in _GOODS_LIST_RE.finditer(text):
+            start = text.index("[", m.end() - 1)
+            try:
+                arr, _ = json.JSONDecoder().raw_decode(text[start:])
+            except ValueError:
+                continue  # 這段壞掉就跳過,別讓整輪掛掉
+            if isinstance(arr, list):
+                out.extend(x for x in arr if isinstance(x, dict))
         return out
 
-    # --- 內部 ---------------------------------------------------------------
+    @classmethod
+    def to_snapshot(cls, goods: dict) -> Optional[ProductSnapshot]:
+        code = str(goods.get("goodsCode") or "").strip()
+        if not _NUMERIC_CODE_RE.match(code):
+            return None  # 摩天商城賣家商品,網址規則未驗證,不收
 
-    def _fetch_one(self, w: Watch) -> Optional[ProductSnapshot]:
-        try:
-            resp = self._session.post(
-                API_URL,
-                json={"goodsCode": w.item_id},
-                headers=self._headers(w.item_id),
-                timeout=SETTINGS.http_timeout_sec,
-            )
-            resp.raise_for_status()
-            data = resp.json()
-        except (requests.RequestException, ValueError) as exc:
-            # 網路 / JSON 解析失敗 → 這一輪略過該商品,不影響其他商品。
-            print(f"[momo] {w.item_id} 取得失敗: {exc}")
+        name = str(goods.get("goodsName") or "").strip()
+        if not name:
             return None
 
-        return self.parse(data, w)
-
-    @staticmethod
-    def _headers(item_id: str) -> dict:
-        """Headers that make the call look like the product page's own XHR.
-
-        momo answers 406 Not Acceptable to a bare JSON POST. It checks for the
-        request shape its own front end sends, so Origin, X-Requested-With and a
-        browser Accept-Language have to be present, not just Accept: application/json.
-        """
-        return {
-            "User-Agent": SETTINGS.user_agent,
-            "Content-Type": "application/json;charset=UTF-8",
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
-            "Origin": "https://www.momoshop.com.tw",
-            "Referer": GOODS_URL.format(code=item_id),
-            "X-Requested-With": "XMLHttpRequest",
-        }
-
-    @staticmethod
-    def parse(data: dict, w: Watch) -> ProductSnapshot:
-        """把 momo 回應解析成統一 snapshot。抽成 static 方便單元測試餵 mock。"""
-        goods = data.get("rtnGoodsData") or data.get("goodsData") or {}
-
-        stock = _first_int(goods, ["goodsStock", "stock", "qty"])
-        on_sale_ts = _to_unix_seconds(
-            _first(goods, ["onSaleTimestamp", "onSaleTime", "saleTimestamp"])
+        price = _money(goods.get("goodsPrice")) or _money(
+            _dig(goods, "goodsPriceModel", "basePrice", "price")
         )
-        price = _first_int(goods, ["goodsPrice", "price", "salePrice"])
-        if price is None:
-            price = _price_from_text(
-                _first(goods, ["goodsPaymentDescription", "paymentDescription"])
-            )
+        stock = _to_int(goods.get("goodsStock"))
+        key = cls.product_key_for(name, code)
 
-        # 是否已上架 / 可購買:有庫存即視為可購買;沒有庫存欄位就退回看有無售價。
-        if stock is not None:
-            available = stock > 0
-        else:
-            available = price is not None
-
-        name = w.name or str(_first(goods, ["goodsName", "name"]) or w.item_id)
+        # 已知建議售價優先(設定檔維護);沒有就退回 momo 自己標的原價。
+        original = ORIGINAL_PRICES.get(key) or _money(goods.get("goodsPriceOri"))
 
         return ProductSnapshot(
-            product_key=w.product_key,
+            product_key=key,
             platform="momo",
-            item_id=w.item_id,
+            item_id=code,
             name=name,
-            url=GOODS_URL.format(code=w.item_id),
+            url=PRODUCT_URL.format(code=code),
             price=price,
-            original_price=w.original_price,
+            original_price=original,
             stock=stock,
-            on_sale_ts=on_sale_ts,
-            available=available,
-            raw={k: goods.get(k) for k in list(goods)[:12]},  # 只留前幾欄除錯
+            available=bool(stock) if stock is not None else price is not None,
+            raw={k: goods.get(k) for k in
+                 ("goodsCode", "goodsPrice", "goodsPriceOri", "goodsStock")},
         )
+
+    @staticmethod
+    def product_key_for(name: str, code: str) -> str:
+        """型號當合併鍵,好讓同一顆陀螺在不同平台併成一條時間軸。
+
+        套裝商品名稱裡會同時出現好幾個型號(「UX-03 魔導神杖 … 鳳凰飛翼BX-23」),
+        硬挑第一個會把套裝的價格混進單品的歷史裡,所以多型號一律另立為套裝。
+        """
+        models = sorted(set(_MODEL_RE.findall(name.upper())))
+        if len(models) == 1:
+            return models[0]
+        return f"bundle-{code}"
 
 
 # --- 解析小工具 -------------------------------------------------------------
 
-def _first(d: dict, keys: list[str]) -> Any:
+def _dig(d: dict, *keys: str) -> Any:
+    cur: Any = d
     for k in keys:
-        if k in d and d[k] not in (None, ""):
-            return d[k]
-    return None
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(k)
+    return cur
 
 
-def _first_int(d: dict, keys: list[str]) -> Optional[int]:
-    val = _first(d, keys)
+def _money(val: Any) -> Optional[int]:
+    """「$$1,199」「795」→ 1199 / 795。抓不到回 None。"""
     if val is None:
         return None
-    try:
-        return int(str(val).replace(",", "").strip())
-    except (ValueError, TypeError):
-        return None
-
-
-def _to_unix_seconds(val: Any) -> Optional[int]:
-    """momo 的時間戳常為毫秒;>1e12 視為毫秒轉秒。也接受純數字字串。"""
-    if val is None:
-        return None
-    try:
-        n = int(str(val).strip())
-    except (ValueError, TypeError):
-        return None
-    if n <= 0:
-        return None
-    return n // 1000 if n > 10_000_000_000 else n
-
-
-def _price_from_text(text: Any) -> Optional[int]:
-    """從「$390」「售價 390 元」之類字串抽出第一個數字。"""
-    if not text:
-        return None
-    m = re.search(r"(\d[\d,]*)", str(text))
+    m = re.search(r"(\d[\d,]*)", str(val))
     if not m:
         return None
     try:
         return int(m.group(1).replace(",", ""))
     except ValueError:
+        return None
+
+
+def _to_int(val: Any) -> Optional[int]:
+    if val is None or val == "":
+        return None
+    try:
+        return int(str(val).replace(",", "").strip())
+    except (ValueError, TypeError):
         return None

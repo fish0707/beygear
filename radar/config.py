@@ -64,18 +64,24 @@ class Watch:
     name: str = ""
 
 
-# 監控清單 —— 這裡放你要盯的 Beyblade X 商品。
-# 範例:UX-04(計畫書驗證用;商品碼與開賣時間以上線前實測為準)。
-WATCHES: list[Watch] = [
-    # momo 商品碼取自商品頁網址 /product/<code>。原價待確認 —— 先留空，
-    # is_original_price 會是 None（未知），等 probe 讀到建議售價再補。
-    Watch(
-        product_key="UX-03",
-        platform="momo",
-        item_id="15462752",
-        name="BEYBLADE X 戰鬥陀螺（momo 15462752）",
-    ),
-]
+# 監控清單 —— 盯「已知商品碼」的目標。
+#
+# 目前是空的,而且 momo 不在這裡:實測 momo 的單品即時資訊 API 對機房 IP 一律
+# 回「查無商品」,商品頁也被換成擋機器人頁,所以盯商品碼這條路走不通。momo 改
+# 走下面的 SEARCHES —— 搜尋頁本身就內嵌完整商品資料。PChome / Funbox 之後要
+# 盯單品時再往這裡加。
+WATCHES: list[Watch] = []
+
+
+# --- 已知建議售價 -----------------------------------------------------------
+
+# 型號 → 台灣建議售價(NT$)。這是雷達的重點判斷依據:秒殺後的加價轉賣要能
+# 一眼看出來,就得知道原價是多少。
+#
+# 沒列在這裡的型號會退回用平台自己標的原價(momo goodsPriceOri / 誠品
+# mprice)。那是「該賣場的定價」,不等於原廠建議售價,只是備援。查證過一款
+# 再往這裡加一款,不要憑印象填。
+ORIGINAL_PRICES: dict[str, int] = {}
 
 
 # --- 搜尋 / 發現式監控目標 --------------------------------------------------
@@ -89,14 +95,20 @@ class Search:
     首次掃描會先建立基準線(不通知),之後才通知真正的新品。
     """
 
-    platform: str            # "eslite" | (之後可加 momo/pchome 搜尋、toysrus…)
+    platform: str            # "momo" | "eslite" | (之後可加 pchome、toysrus…)
     keyword: str             # 搜尋關鍵字(如 "beyblade")
     name: str = ""           # 這組掃描的人類可讀標籤
 
 
 # 掃描清單 —— 這裡放「要在哪些商城、用什麼關鍵字掃新品」。
+#
+# momo 用中文「戰鬥陀螺」比英文 BEYBLADE 涵蓋得廣(台灣商品名多半是中文),
+# 兩個都掃,重複的會依商品碼去重。誠品用「戰鬥陀螺」才掃得到東西 ——
+# 用 "beyblade" 只會命中賭博默示錄那類書,因為它是模糊比對。
 SEARCHES: list[Search] = [
-    Search(platform="eslite", keyword="beyblade", name="誠品 Beyblade X 掃描"),
+    Search(platform="momo", keyword="戰鬥陀螺", name="momo 戰鬥陀螺掃描"),
+    Search(platform="momo", keyword="BEYBLADE", name="momo BEYBLADE 掃描"),
+    Search(platform="eslite", keyword="戰鬥陀螺", name="誠品戰鬥陀螺掃描"),
 ]
 
 
