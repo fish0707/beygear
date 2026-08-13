@@ -1,0 +1,3 @@
+requests>=2.31
+# 選配:讓 config.py 自動載入 .env(沒裝也能跑,改用系統環境變數)
+python-dotenv>=1.0

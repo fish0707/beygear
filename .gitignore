@@ -1,0 +1,20 @@
+# 金鑰
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# 注意:data/radar.db 必須進版控 —— 狀態要跨 Actions 執行保存,
+# 否則偵測不到「補貨」。所以這裡不排除 *.db。
+
+# Node / Next.js（前台之後會加）
+node_modules/
+.next/
+out/
+.vercel
