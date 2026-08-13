@@ -5,24 +5,27 @@ The dev sandbox cannot reach Taiwanese e-commerce (its egress proxy refuses
 momoshop and eslite), so this runs on a GitHub Actions runner, which can, and
 prints structure to the job log to write the parsers against.
 
-What rounds 1–3 established, and why round 4 looks where it does:
+Where rounds 1–4 landed:
 
-  momo — the homepage and the *search* page both come back real (search:
-    161 KB, title "BEYBLADE - momo購物網"). Only the product-detail route is
-    replaced by the bot-guard page ("Mobile管理訊息"), and the per-item API
-    answers 查無商品 no matter what session or headers we bring. So the item
-    endpoint is a dead end from a datacenter IP, and search is the way in.
-    Round 4 reads what the working search response actually contains — it
-    yielded only one i_code, so the results are almost certainly a JSON blob or
-    /product/ links rather than the old i_code anchors — and tries momo's search
-    API host.
+  momo — the product page and the per-item API are both closed to a datacenter
+    IP (bot-guard page; 查無商品 through every session and payload variant).
+    The *search* page is wide open and carries everything we need, embedded as
+    escaped JSON:
 
-  eslite — the site is a Vue SPA, so there is nothing to scrape from HTML,
-    ever. Its own bundle named the API: host athena.eslite.com, paths
-    /api/v3/products, /api/v2/search, /api/v2/search_keyword. Round 4 calls
-    them. (/llms.txt turned out to be a category-map for AI crawlers, not
-    product data, and product/<id>.md just returns the SPA shell — neither is
-    a stock source.)
+        "goodsInfoList":[{"goodsCode":"15162670",
+          "goodsName":"【TAKARA TOMY】BEYBLADE X 戰鬥陀螺X UX-15 鮫鯊狂鱗改造組",
+          "goodsPrice":"$$795", "goodsPriceOri":"$$795",
+          "goodsPriceModel":{"basePrice":{"price":"795"}},
+          "goodsStock":"168", ...}]
+
+    So the monitor should be search-driven, not item-driven. Round 5 pulls that
+    blob out properly and prints one full record so every field name is known.
+    (momo's apisearch host answers 403 Access Denied, so the page is the API.)
+
+  eslite — athena.eslite.com/api/v2/search?keyword=… returns real JSON:
+    {facets, hits:{start, found, hit:[{id, fields}]}}. The field names inside
+    `fields` are the last unknown, so print one hit in full. The keyword
+    "beyblade" matched only manga, so also try the Chinese product name.
 
 It prints shapes and short samples, never whole pages.
 
@@ -41,9 +44,6 @@ sys.path.insert(0, ".")
 from config import SETTINGS  # noqa: E402
 
 UA = SETTINGS.user_agent
-
-MOMO_ITEM = "15462752"
-ESLITE_PRODUCT = "10042014802683176604005"
 
 BROWSER_HEADERS = {
     "User-Agent": UA,
@@ -65,118 +65,89 @@ def hr(title: str) -> None:
     print(f"\n{'=' * 12} {title} {'=' * 12}")
 
 
-def brief(obj, limit: int = 700) -> str:
-    return json.dumps(obj, ensure_ascii=False)[:limit]
+def extract_goods_list(html: str) -> list[dict]:
+    """Pull goodsInfoList out of momo's search page.
+
+    The blob sits inside a JavaScript string, so the JSON is backslash-escaped.
+    Unescape first, then let the JSON decoder find the end of the array for us —
+    a regex cannot balance nested brackets reliably.
+    """
+    text = html.replace('\\"', '"')
+    out: list[dict] = []
+    for m in re.finditer(r'"goodsInfoList"\s*:\s*\[', text):
+        start = text.index("[", m.end() - 1)
+        try:
+            arr, _ = json.JSONDecoder().raw_decode(text[start:])
+        except ValueError as exc:
+            print("   raw_decode failed:", exc)
+            continue
+        if isinstance(arr, list):
+            out.extend(x for x in arr if isinstance(x, dict))
+    return out
 
 
-def walk_keys(obj, depth: int = 0, path: str = "") -> None:
-    """Print the shape of a nested response so field names are visible."""
-    if depth > 3:
-        return
-    if isinstance(obj, dict):
-        print("   " * depth + f"{path or '.'} {{{', '.join(list(obj)[:18])}}}")
-        for k in list(obj)[:8]:
-            if isinstance(obj[k], (dict, list)):
-                walk_keys(obj[k], depth + 1, k)
-    elif isinstance(obj, list):
-        print("   " * depth + f"{path}[] len={len(obj)}")
-        if obj:
-            walk_keys(obj[0], depth + 1, f"{path}[0]")
-
-
-# --- momo -------------------------------------------------------------------
-
-def probe_momo_search_shape() -> None:
-    """The search page renders fine for us; find where the product data lives."""
-    hr("momo — inside the working search page")
-    s = requests.Session()
-    s.headers.update(BROWSER_HEADERS)
-    url = "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=BEYBLADE"
+def probe_momo_search(keyword: str) -> None:
+    hr(f"momo search — {keyword}")
+    url = f"https://www.momoshop.com.tw/search/searchShop.jsp?keyword={keyword}"
     try:
-        r = s.get(url, timeout=30)
-        html = r.text
-        print("status:", r.status_code, "| bytes:", len(html))
-        print("product links:", sorted(set(re.findall(r"/product/(\d{6,})", html)))[:15])
-        print("i_code links:", sorted(set(re.findall(r"i_code=(\d{6,})", html)))[:15])
-        print("goodsCode mentions:", len(re.findall(r"goodsCode", html)))
-        for pat, name in (
-            (r"window\.__(\w+)__\s*=", "window.__X__ blobs"),
-            (r'<script[^>]*id="([^"]+)"[^>]*type="application/json"', "json script ids"),
-        ):
-            print(f"{name}:", sorted(set(re.findall(pat, html)))[:10])
-        # Show the markup around the first price so the selector can be written.
-        m = re.search(r".{300}\$[\d,]{3,}.{300}", html, re.S)
-        print("--- markup around first price ---")
-        print(re.sub(r"\s+", " ", m.group(0)) if m else "no $price found")
-        print("--- end ---")
+        r = requests.get(url, headers=BROWSER_HEADERS, timeout=30)
+        print("status:", r.status_code, "| bytes:", len(r.text))
+        goods = extract_goods_list(r.text)
+        print("goods parsed:", len(goods))
+        if not goods:
+            return
+        print("\nfull first record:")
+        print(json.dumps(goods[0], ensure_ascii=False, indent=2)[:2500])
+        print("\nall records (code / price / stock / name):")
+        for g in goods[:30]:
+            print(f"   {g.get('goodsCode')} | {g.get('goodsPrice')} | "
+                  f"stock={g.get('goodsStock')} | {str(g.get('goodsName'))[:52]}")
     except Exception as exc:  # noqa: BLE001
         print("failed:", type(exc).__name__, exc)
 
 
-def probe_momo_search_api() -> None:
-    hr("momo — search API host")
-    variants = [
-        ("apisearch textSearch",
-         "https://apisearch.momoshop.com.tw/momoSearchCloud/moec/textSearch",
-         {"host": "momoshop", "flag": 99, "data": {"searchValue": "BEYBLADE",
-                                                   "curPage": "1", "cateLevel": "-1",
-                                                   "cateCode": "", "first": True}}),
-        ("apisearch goodsSearch",
-         "https://apisearch.momoshop.com.tw/momoSearchCloud/moec/textSearch",
-         {"data": {"searchValue": "BEYBLADE", "curPage": "1"}}),
-    ]
-    headers = {
-        "User-Agent": UA,
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/plain, */*",
-        "Origin": "https://www.momoshop.com.tw",
-        "Referer": "https://www.momoshop.com.tw/",
-    }
-    for label, url, payload in variants:
-        try:
-            r = requests.post(url, json=payload, headers=headers, timeout=25)
-            print(f"\n[{label}] {r.status_code} | {len(r.text)} bytes")
-            try:
-                walk_keys(r.json())
-            except ValueError:
-                print("   body head:", r.text[:300].replace("\n", " "))
-        except Exception as exc:  # noqa: BLE001
-            print(f"[{label}] failed: {type(exc).__name__} {exc}")
+def probe_eslite_search(keyword: str) -> None:
+    hr(f"eslite search — {keyword}")
+    try:
+        r = requests.get("https://athena.eslite.com/api/v2/search",
+                         params={"keyword": keyword, "page": 1, "per_page": 20},
+                         headers=JSON_HEADERS, timeout=25)
+        print("status:", r.status_code, "|", r.url)
+        data = r.json()
+        hits = data.get("hits", {})
+        print("found:", hits.get("found"), "| returned:", len(hits.get("hit", [])))
+        hit = (hits.get("hit") or [{}])[0]
+        print("\nfull first hit:")
+        print(json.dumps(hit, ensure_ascii=False, indent=2)[:2500])
+        print("\nall hits (id / name):")
+        for h in hits.get("hit", [])[:20]:
+            f = h.get("fields", {})
+            print(f"   {h.get('id')} | {str(f.get('title') or f.get('name'))[:60]}")
+    except Exception as exc:  # noqa: BLE001
+        print("failed:", type(exc).__name__, exc)
 
 
-# --- eslite -----------------------------------------------------------------
-
-def probe_eslite_api() -> None:
-    """Call the endpoints the SPA's own bundle names."""
-    hr("eslite — athena API")
+def probe_eslite_product_variants(pid: str) -> None:
+    """v3/products/<id> returned an empty array; try the other shapes."""
+    hr(f"eslite product lookups — {pid}")
     attempts = [
-        ("product v3", "GET", f"https://athena.eslite.com/api/v3/products/{ESLITE_PRODUCT}", None),
-        ("product v3 query", "GET", "https://athena.eslite.com/api/v3/products",
-         {"ids": ESLITE_PRODUCT}),
-        ("search v2 GET", "GET", "https://athena.eslite.com/api/v2/search",
-         {"keyword": "beyblade", "page": 1, "per_page": 20}),
-        ("search v2 q", "GET", "https://athena.eslite.com/api/v2/search",
-         {"q": "beyblade"}),
-        ("search_keyword", "GET", "https://athena.eslite.com/api/v2/search_keyword",
-         {"keyword": "beyblade"}),
+        ("ids[] repeated", "https://athena.eslite.com/api/v3/products", {"ids[]": pid}),
+        ("id", "https://athena.eslite.com/api/v3/products", {"id": pid}),
+        ("v2 products", f"https://athena.eslite.com/api/v2/products/{pid}", None),
+        ("v3 slug", f"https://athena.eslite.com/api/v3/products/{pid}/detail", None),
     ]
-    for label, method, url, params in attempts:
+    for label, url, params in attempts:
         try:
-            r = requests.request(method, url, params=params, headers=JSON_HEADERS, timeout=25)
-            print(f"\n[{label}] {r.status_code} | {r.headers.get('content-type')} | "
-                  f"{len(r.text)} bytes | {r.url}")
-            if r.status_code == 200 and "json" in str(r.headers.get("content-type")):
-                data = r.json()
-                walk_keys(data)
-                print("   sample:", brief(data))
-            else:
-                print("   body head:", r.text[:250].replace("\n", " "))
+            r = requests.get(url, params=params, headers=JSON_HEADERS, timeout=20)
+            print(f"   [{label}] {r.status_code} | {len(r.text)} bytes | "
+                  f"{r.text[:200]}")
         except Exception as exc:  # noqa: BLE001
-            print(f"[{label}] failed: {type(exc).__name__} {exc}")
+            print(f"   [{label}] failed: {type(exc).__name__} {exc}")
 
 
 if __name__ == "__main__":
-    probe_momo_search_shape()
-    probe_momo_search_api()
-    probe_eslite_api()
+    probe_momo_search("BEYBLADE")
+    probe_momo_search("%E6%88%B0%E9%AC%A5%E9%99%80%E8%9E%BA")  # 戰鬥陀螺
+    probe_eslite_search("戰鬥陀螺")
+    probe_eslite_product_variants("10042014802683176604005")
     print("\n[probe] done")
