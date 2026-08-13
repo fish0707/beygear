@@ -87,7 +87,9 @@ def test_export_writes_site_json(tmp_path):
     assert p["restock_count"] == 1
     assert p["in_stock_anywhere"] is True
     # Listed at 1490 against an original of 795 — the markup is the headline number.
-    assert p["available_at_original_price"] is False
+    assert p["at_or_below_list_price"] is False
+    # No verified MSRP for this key, so the radar must not claim to know.
+    assert p["available_at_msrp"] is None
     assert bundle["snapshot"]["listings"][0]["markup_pct"] == 87.4
     # The bulky raw payload must never reach the public JSON.
     assert "raw" not in bundle["snapshot"]["listings"][0]

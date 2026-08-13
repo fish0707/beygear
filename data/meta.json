@@ -1,8 +1,9 @@
 {
-  "at_original_price_count": 14,
-  "generated_at": 1786615179,
-  "history_count": 29,
+  "at_msrp_count": 0,
+  "generated_at": 1786615364,
+  "history_count": 27,
   "in_stock_count": 14,
-  "listing_count": 29,
-  "product_count": 29
+  "listing_count": 27,
+  "msrp_known_count": 0,
+  "product_count": 27
 }

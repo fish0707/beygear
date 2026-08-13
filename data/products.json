@@ -1,8 +1,9 @@
 {
-  "generated_at": 1786615179,
+  "generated_at": 1786615364,
   "products": [
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -23,6 +24,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 1299,
       "listings": [
         {
           "available": true,
@@ -43,8 +45,8 @@
         }
       ],
       "lowest_price": 826,
+      "msrp": null,
       "name": "【TAKARA TOMY】Beyblade (韓版) 戰鬥陀螺 X世代 BX-19 戰犀號角 3-80S",
-      "original_price": 1299,
       "platforms": [
         "momo"
       ],
@@ -52,107 +54,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
-      "history": [
-        {
-          "available": false,
-          "is_original_price": null,
-          "item_id": "15462752",
-          "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
-          "observed_at": 1786614149,
-          "old_price": null,
-          "old_status": null,
-          "original_price": null,
-          "platform": "momo",
-          "price": null,
-          "product_key": "UX-03",
-          "status": "ANNOUNCED",
-          "stock": null,
-          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462752"
-        }
-      ],
-      "in_stock_anywhere": false,
-      "last_updated_at": 1786614149,
-      "listings": [
-        {
-          "available": false,
-          "first_seen_at": 1786614149,
-          "is_original_price": null,
-          "item_id": "15462752",
-          "last_updated_at": 1786614149,
-          "markup_pct": null,
-          "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
-          "on_sale_ts": null,
-          "original_price": null,
-          "platform": "momo",
-          "price": null,
-          "product_key": "UX-03",
-          "status": "ANNOUNCED",
-          "stock": null,
-          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462752"
-        }
-      ],
-      "lowest_price": null,
-      "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
-      "original_price": null,
-      "platforms": [
-        "momo"
-      ],
-      "product_key": "UX-03",
-      "restock_count": 0
-    },
-    {
-      "available_at_original_price": false,
-      "history": [
-        {
-          "available": false,
-          "is_original_price": null,
-          "item_id": "15462754",
-          "name": "Beyblade X UX-04(範例)",
-          "observed_at": 1786613130,
-          "old_price": null,
-          "old_status": null,
-          "original_price": 390,
-          "platform": "momo",
-          "price": null,
-          "product_key": "UX-04",
-          "status": "ANNOUNCED",
-          "stock": null,
-          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462754"
-        }
-      ],
-      "in_stock_anywhere": false,
-      "last_updated_at": 1786613130,
-      "listings": [
-        {
-          "available": false,
-          "first_seen_at": 1786613130,
-          "is_original_price": null,
-          "item_id": "15462754",
-          "last_updated_at": 1786613130,
-          "markup_pct": null,
-          "name": "Beyblade X UX-04(範例)",
-          "on_sale_ts": null,
-          "original_price": 390,
-          "platform": "momo",
-          "price": null,
-          "product_key": "UX-04",
-          "status": "ANNOUNCED",
-          "stock": null,
-          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462754"
-        }
-      ],
-      "lowest_price": null,
-      "name": "Beyblade X UX-04(範例)",
-      "original_price": 390,
-      "platforms": [
-        "momo"
-      ],
-      "product_key": "UX-04",
-      "restock_count": 0
-    },
-    {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -173,6 +76,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 795,
       "listings": [
         {
           "available": true,
@@ -193,8 +97,8 @@
         }
       ],
       "lowest_price": 795,
+      "msrp": null,
       "name": "【TAKARA TOMY】BEYBLADE X 戰鬥陀螺X UX-15 鮫鯊狂鱗改造組",
-      "original_price": 795,
       "platforms": [
         "momo"
       ],
@@ -202,7 +106,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -223,6 +128,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 1999,
       "listings": [
         {
           "available": true,
@@ -243,8 +149,8 @@
         }
       ],
       "lowest_price": 449,
+      "msrp": null,
       "name": "【BAKUGAN 爆丸】爆丸戰鬥場(新款爆丸)",
-      "original_price": 1999,
       "platforms": [
         "momo"
       ],
@@ -252,7 +158,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -273,6 +180,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 1490,
       "listings": [
         {
           "available": true,
@@ -293,8 +201,8 @@
         }
       ],
       "lowest_price": 1099,
+      "msrp": null,
       "name": "【TAKARA TOMY】戰鬥陀螺X  UX-03 魔導神杖  5-70DB  鳳凰飛翼BX-23含發射器一組(美版)",
-      "original_price": 1490,
       "platforms": [
         "momo"
       ],
@@ -302,7 +210,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -323,6 +232,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 999,
       "listings": [
         {
           "available": true,
@@ -343,8 +253,8 @@
         }
       ],
       "lowest_price": 799,
+      "msrp": null,
       "name": "【TAKARA TOMY】戰鬥陀螺X 戰犀號角 BX-19 3-80S 鎌刀火焰BX-02 3-80B 騎士長槍BX-13 組裝強化包(美版)",
-      "original_price": 999,
       "platforms": [
         "momo"
       ],
@@ -352,7 +262,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -373,6 +284,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 1490,
       "listings": [
         {
           "available": true,
@@ -393,8 +305,8 @@
         }
       ],
       "lowest_price": 1199,
+      "msrp": null,
       "name": "【TAKARA TOMY】戰鬥陀螺X  UX-03 魔導神杖 5-70DB 鳳凰飛翼BX-23 武士聖劍 BX-45 兩入/單入包裝組(美版)",
-      "original_price": 1490,
       "platforms": [
         "momo"
       ],
@@ -402,7 +314,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -423,6 +336,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615173,
+      "list_price": 1999,
       "listings": [
         {
           "available": true,
@@ -443,8 +357,8 @@
         }
       ],
       "lowest_price": 1799,
+      "msrp": null,
       "name": "【TAKARA TOMY】戰鬥陀螺X 鳳凰飛翼BX-23 魔導神杖 UX-03 綠鱷魚 隕星龍騎士UX-17含射器一組(美版)",
-      "original_price": 1999,
       "platforms": [
         "momo"
       ],
@@ -452,7 +366,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -473,6 +388,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 350,
       "listings": [
         {
           "available": false,
@@ -493,8 +409,8 @@
         }
       ],
       "lowest_price": 315,
+      "msrp": null,
       "name": "戰鬥紙陀螺: 核心增強! 更神奇的旋轉力! (最終進化版/附限定版特別花紋色紙)",
-      "original_price": 350,
       "platforms": [
         "eslite"
       ],
@@ -502,7 +418,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -523,6 +440,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 350,
       "listings": [
         {
           "available": false,
@@ -543,8 +461,8 @@
         }
       ],
       "lowest_price": 315,
+      "msrp": null,
       "name": "戰鬥紙陀螺全新世代: 酷炫外型, 華麗變身! (附限定版特別花紋色紙)",
-      "original_price": 350,
       "platforms": [
         "eslite"
       ],
@@ -552,7 +470,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -573,6 +492,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 350,
       "listings": [
         {
           "available": true,
@@ -593,8 +513,8 @@
         }
       ],
       "lowest_price": 315,
+      "msrp": null,
       "name": "戰鬥紙陀螺: 創新設計, 更簡單卻超強! (最新入門款)",
-      "original_price": 350,
       "platforms": [
         "eslite"
       ],
@@ -602,7 +522,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -623,6 +544,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 160,
       "listings": [
         {
           "available": false,
@@ -643,8 +565,8 @@
         }
       ],
       "lowest_price": 136,
+      "msrp": null,
       "name": "戰鬥陀螺X 1",
-      "original_price": 160,
       "platforms": [
         "eslite"
       ],
@@ -652,7 +574,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -673,6 +596,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 140,
       "listings": [
         {
           "available": true,
@@ -693,8 +617,8 @@
         }
       ],
       "lowest_price": 119,
+      "msrp": null,
       "name": "戰鬥陀螺X 2",
-      "original_price": 140,
       "platforms": [
         "eslite"
       ],
@@ -702,7 +626,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -723,6 +648,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 270,
       "listings": [
         {
           "available": false,
@@ -743,8 +669,8 @@
         }
       ],
       "lowest_price": 243,
+      "msrp": null,
       "name": "コロコロコミック (8月/2024/附戰鬥陀螺紙製收納盒&卡片&漫畫別冊)",
-      "original_price": 270,
       "platforms": [
         "eslite"
       ],
@@ -752,7 +678,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -773,6 +700,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 573,
       "listings": [
         {
           "available": false,
@@ -793,8 +721,8 @@
         }
       ],
       "lowest_price": 515,
+      "msrp": null,
       "name": "コロコロイチバン! (11月/2024/附星之卡比徽章&寶可夢FRIENDA卡&決鬥大師集卡片&戰鬥陀螺貼紙&寶可夢別冊",
-      "original_price": 573,
       "platforms": [
         "eslite"
       ],
@@ -802,7 +730,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -823,6 +752,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 841,
       "listings": [
         {
           "available": false,
@@ -843,8 +773,8 @@
         }
       ],
       "lowest_price": 756,
+      "msrp": null,
       "name": "BEYBLADEX必勝XTRAガイド (附附錄組)",
-      "original_price": 841,
       "platforms": [
         "eslite"
       ],
@@ -852,7 +782,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -873,6 +804,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 535,
       "listings": [
         {
           "available": false,
@@ -893,8 +825,8 @@
         }
       ],
       "lowest_price": 481,
+      "msrp": null,
       "name": "コロコロイチバン! (5月/2025/附戰鬥陀螺紙製收納盒&星之卡比月曆&別冊&海報)",
-      "original_price": 535,
       "platforms": [
         "eslite"
       ],
@@ -902,7 +834,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -923,6 +856,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 290,
       "listings": [
         {
           "available": false,
@@ -943,8 +877,8 @@
         }
       ],
       "lowest_price": 261,
+      "msrp": null,
       "name": "コロコロコミック (10月/2025/附卡片組&卡片收納盒&別冊&海報)",
-      "original_price": 290,
       "platforms": [
         "eslite"
       ],
@@ -952,7 +886,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -973,6 +908,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 888,
       "listings": [
         {
           "available": false,
@@ -993,8 +929,8 @@
         }
       ],
       "lowest_price": 799,
+      "msrp": null,
       "name": "BEYBLADE X 必勝XTRAガイド (2026/附陀螺)",
-      "original_price": 888,
       "platforms": [
         "eslite"
       ],
@@ -1002,7 +938,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -1023,6 +960,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 600,
       "listings": [
         {
           "available": false,
@@ -1043,8 +981,8 @@
         }
       ],
       "lowest_price": 540,
+      "msrp": null,
       "name": "コロコロイチバン! (6月/7月/合併号/2026/附名偵探柯南別冊&小報&戰鬥陀螺紙製收納盒&支援寶可夢劵)",
-      "original_price": 600,
       "platforms": [
         "eslite"
       ],
@@ -1052,7 +990,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -1073,6 +1012,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 320,
       "listings": [
         {
           "available": false,
@@ -1093,8 +1033,8 @@
         }
       ],
       "lowest_price": 288,
+      "msrp": null,
       "name": "戰鬥紙陀螺: 只要3張紙, 我的帥氣陀螺就誕生了!",
-      "original_price": 320,
       "platforms": [
         "eslite"
       ],
@@ -1102,7 +1042,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -1123,6 +1064,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 1800,
       "listings": [
         {
           "available": false,
@@ -1143,8 +1085,8 @@
         }
       ],
       "lowest_price": 1350,
+      "msrp": null,
       "name": "數感小學冒險系列 1-6: 數字的謎團 (6冊合售)",
-      "original_price": 1800,
       "platforms": [
         "eslite"
       ],
@@ -1152,7 +1094,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": false,
+      "at_or_below_list_price": false,
+      "available_at_msrp": null,
       "history": [
         {
           "available": false,
@@ -1173,6 +1116,7 @@
       ],
       "in_stock_anywhere": false,
       "last_updated_at": 1786615175,
+      "list_price": 300,
       "listings": [
         {
           "available": false,
@@ -1193,8 +1137,8 @@
         }
       ],
       "lowest_price": 237,
+      "msrp": null,
       "name": "數感小學冒險系列 2: 旋風戰鬥陀螺的祕密",
-      "original_price": 300,
       "platforms": [
         "eslite"
       ],
@@ -1202,7 +1146,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -1223,6 +1168,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 1780,
       "listings": [
         {
           "available": true,
@@ -1243,8 +1189,8 @@
         }
       ],
       "lowest_price": 1780,
+      "msrp": null,
       "name": "CRAZE 戳戳樂降臨曆(戰鬥陀螺-22)41512",
-      "original_price": 1780,
       "platforms": [
         "eslite"
       ],
@@ -1252,7 +1198,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -1273,6 +1220,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 590,
       "listings": [
         {
           "available": true,
@@ -1293,8 +1241,8 @@
         }
       ],
       "lowest_price": 590,
+      "msrp": null,
       "name": "【ONE HOUSE】享樂趣加大貨櫃公仔盒 4入",
-      "original_price": 590,
       "platforms": [
         "eslite"
       ],
@@ -1302,7 +1250,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -1323,6 +1272,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 210,
       "listings": [
         {
           "available": true,
@@ -1343,8 +1293,8 @@
         }
       ],
       "lowest_price": 199,
+      "msrp": null,
       "name": "數感小學冒險系列2：旋風戰鬥陀螺的祕密 (電子書)",
-      "original_price": 210,
       "platforms": [
         "eslite"
       ],
@@ -1352,7 +1302,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -1373,6 +1324,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 120,
       "listings": [
         {
           "available": true,
@@ -1393,8 +1345,8 @@
         }
       ],
       "lowest_price": 120,
+      "msrp": null,
       "name": "戰鬥陀螺X (1) (電子書)",
-      "original_price": 120,
       "platforms": [
         "eslite"
       ],
@@ -1402,7 +1354,8 @@
       "restock_count": 0
     },
     {
-      "available_at_original_price": true,
+      "at_or_below_list_price": true,
+      "available_at_msrp": null,
       "history": [
         {
           "available": true,
@@ -1423,6 +1376,7 @@
       ],
       "in_stock_anywhere": true,
       "last_updated_at": 1786615175,
+      "list_price": 105,
       "listings": [
         {
           "available": true,
@@ -1443,8 +1397,8 @@
         }
       ],
       "lowest_price": 105,
+      "msrp": null,
       "name": "戰鬥陀螺X (2) (電子書)",
-      "original_price": 105,
       "platforms": [
         "eslite"
       ],

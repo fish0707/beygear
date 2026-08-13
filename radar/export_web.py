@@ -26,6 +26,7 @@ from typing import Any
 from dataclasses import asdict
 
 from calendar_db import Calendar
+from config import ORIGINAL_PRICES
 
 
 def _clean(row: dict[str, Any]) -> dict[str, Any]:
@@ -38,7 +39,7 @@ def _clean(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def _markup_pct(price: int | None, original: int | None) -> float | None:
-    """How far above the original price this listing sits, as a percentage."""
+    """How far above the reference price this listing sits, as a percentage."""
     if not price or not original or original <= 0:
         return None
     return round((price - original) / original * 100, 1)
@@ -64,9 +65,25 @@ def build(db_path: str) -> dict[str, Any]:
         listings = [e for e in events if e["product_key"] == key]
         hist = sorted(by_key.get(key, []), key=lambda h: h["observed_at"])
         in_stock = [l for l in listings if l.get("available")]
-        at_original = [l for l in in_stock if l.get("is_original_price")]
         cheapest = min((l for l in listings if l.get("price")),
                        key=lambda l: l["price"], default=None)
+        lowest = cheapest.get("price") if cheapest else None
+
+        # Two different reference prices, kept apart on purpose.
+        #
+        # `list_price` is whatever the shop prints as its own 原價 (momo
+        # goodsPriceOri / eslite mprice). It is a real, citable number, but a
+        # shop can set it to anything, so "at or below list price" is close to
+        # always true and means very little.
+        #
+        # `msrp` is the manufacturer's suggested price, and only comes from the
+        # verified table in config. "Available at MSRP" is the claim the radar
+        # actually exists to make, so it must never be inferred from a shop's
+        # own list price — it stays null until someone checks the real figure.
+        list_price = next(
+            (l.get("original_price") for l in listings if l.get("original_price")), None
+        )
+        msrp = ORIGINAL_PRICES.get(key)
         products.append({
             "product_key": key,
             "name": next((l.get("name") for l in listings if l.get("name")), key),
@@ -75,11 +92,16 @@ def build(db_path: str) -> dict[str, Any]:
             "history": hist,
             "restock_count": sum(1 for h in hist if h.get("status") == "RESTOCKED"),
             "in_stock_anywhere": bool(in_stock),
-            "available_at_original_price": bool(at_original),
-            "lowest_price": cheapest.get("price") if cheapest else None,
-            "original_price": next(
-                (l.get("original_price") for l in listings if l.get("original_price")), None
+            "at_or_below_list_price": bool(
+                [l for l in in_stock if l.get("is_original_price")]
             ),
+            "available_at_msrp": (
+                None if msrp is None or lowest is None
+                else bool([l for l in in_stock if (l.get("price") or 0) <= msrp])
+            ),
+            "lowest_price": lowest,
+            "list_price": list_price,
+            "msrp": msrp,
             "last_updated_at": max((l.get("last_updated_at") or 0) for l in listings),
         })
 
@@ -99,9 +121,8 @@ def build(db_path: str) -> dict[str, Any]:
             "listing_count": len(events),
             "history_count": len(history),
             "in_stock_count": sum(1 for p in products if p["in_stock_anywhere"]),
-            "at_original_price_count": sum(
-                1 for p in products if p["available_at_original_price"]
-            ),
+            "at_msrp_count": sum(1 for p in products if p["available_at_msrp"]),
+            "msrp_known_count": sum(1 for p in products if p["msrp"] is not None),
         },
     }
 

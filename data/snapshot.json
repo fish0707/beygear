@@ -1,40 +1,6 @@
 {
-  "generated_at": 1786615179,
+  "generated_at": 1786615364,
   "listings": [
-    {
-      "available": false,
-      "first_seen_at": 1786613130,
-      "is_original_price": null,
-      "item_id": "15462754",
-      "last_updated_at": 1786613130,
-      "markup_pct": null,
-      "name": "Beyblade X UX-04(範例)",
-      "on_sale_ts": null,
-      "original_price": 390,
-      "platform": "momo",
-      "price": null,
-      "product_key": "UX-04",
-      "status": "ANNOUNCED",
-      "stock": null,
-      "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462754"
-    },
-    {
-      "available": false,
-      "first_seen_at": 1786614149,
-      "is_original_price": null,
-      "item_id": "15462752",
-      "last_updated_at": 1786614149,
-      "markup_pct": null,
-      "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
-      "on_sale_ts": null,
-      "original_price": null,
-      "platform": "momo",
-      "price": null,
-      "product_key": "UX-03",
-      "status": "ANNOUNCED",
-      "stock": null,
-      "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462752"
-    },
     {
       "available": true,
       "first_seen_at": 1786615173,
