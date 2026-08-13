@@ -67,30 +67,14 @@ class Watch:
 # 監控清單 —— 這裡放你要盯的 Beyblade X 商品。
 # 範例:UX-04(計畫書驗證用;商品碼與開賣時間以上線前實測為準)。
 WATCHES: list[Watch] = [
+    # momo 商品碼取自商品頁網址 /product/<code>。原價待確認 —— 先留空，
+    # is_original_price 會是 None（未知），等 probe 讀到建議售價再補。
     Watch(
-        product_key="UX-04",
+        product_key="UX-03",
         platform="momo",
-        item_id="15462754",
-        original_price=390,
-        name="Beyblade X UX-04(範例)",
+        item_id="15462752",
+        name="BEYBLADE X 戰鬥陀螺（momo 15462752）",
     ),
-    # 跨平台同款:用「相同 product_key」串起來,行事曆會自動合併。
-    # 打開下面兩筆(填真實 id / 網址)即可讓 PChome、Funbox 一起盯 UX-04。
-    #
-    # Watch(
-    #     product_key="UX-04",
-    #     platform="pchome",
-    #     item_id="DGAJ8T-XXXXXXXX",   # PChome prod id
-    #     original_price=390,
-    #     name="Beyblade X UX-04",
-    # ),
-    # Watch(
-    #     product_key="UX-04",
-    #     platform="funbox",
-    #     item_id="https://funbox 商品頁完整網址",  # funbox 用網址當 item_id
-    #     original_price=390,
-    #     name="Beyblade X UX-04",
-    # ),
 ]
 
 

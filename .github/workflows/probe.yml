@@ -1,0 +1,22 @@
+# 手動探測:把零售商的真實回應結構印到 job log。
+#
+# 開發沙箱連不到台灣電商（egress proxy 擋掉 momoshop / eslite），而 eslite 的
+# 解析器從未用真實 HTML 校準過。Actions runner 連得到，所以校準只能在這裡做。
+
+name: probe
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r radar/requirements.txt
+      - name: Probe retailer responses
+        working-directory: radar
+        run: python tools/probe_sites.py
