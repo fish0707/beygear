@@ -1,6 +1,56 @@
 {
-  "generated_at": 1786613133,
+  "generated_at": 1786614150,
   "products": [
+    {
+      "available_at_original_price": false,
+      "history": [
+        {
+          "available": false,
+          "is_original_price": null,
+          "item_id": "15462752",
+          "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
+          "observed_at": 1786614149,
+          "old_price": null,
+          "old_status": null,
+          "original_price": null,
+          "platform": "momo",
+          "price": null,
+          "product_key": "UX-03",
+          "status": "ANNOUNCED",
+          "stock": null,
+          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462752"
+        }
+      ],
+      "in_stock_anywhere": false,
+      "last_updated_at": 1786614149,
+      "listings": [
+        {
+          "available": false,
+          "first_seen_at": 1786614149,
+          "is_original_price": null,
+          "item_id": "15462752",
+          "last_updated_at": 1786614149,
+          "markup_pct": null,
+          "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
+          "on_sale_ts": null,
+          "original_price": null,
+          "platform": "momo",
+          "price": null,
+          "product_key": "UX-03",
+          "status": "ANNOUNCED",
+          "stock": null,
+          "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462752"
+        }
+      ],
+      "lowest_price": null,
+      "name": "BEYBLADE X 戰鬥陀螺（momo 15462752）",
+      "original_price": null,
+      "platforms": [
+        "momo"
+      ],
+      "product_key": "UX-03",
+      "restock_count": 0
+    },
     {
       "available_at_original_price": false,
       "history": [
