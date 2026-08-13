@@ -1,4 +1,22 @@
 {
-  "generated_at": 1786612824,
-  "listings": []
+  "generated_at": 1786613133,
+  "listings": [
+    {
+      "available": false,
+      "first_seen_at": 1786613130,
+      "is_original_price": null,
+      "item_id": "15462754",
+      "last_updated_at": 1786613130,
+      "markup_pct": null,
+      "name": "Beyblade X UX-04(範例)",
+      "on_sale_ts": null,
+      "original_price": 390,
+      "platform": "momo",
+      "price": null,
+      "product_key": "UX-04",
+      "status": "ANNOUNCED",
+      "stock": null,
+      "url": "https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=15462754"
+    }
+  ]
 }
