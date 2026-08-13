@@ -2,21 +2,25 @@
 Probe the real retailer responses and print their structure.
 
 The dev sandbox cannot reach Taiwanese e-commerce (its egress proxy refuses
-momoshop and eslite), and neither parser has been calibrated against a real
-response. A GitHub Actions runner *can* reach them, so this script runs there
-and prints enough structure to the job log to write the selectors against.
+momoshop and eslite), so this runs on a GitHub Actions runner, which can, and
+prints structure to the job log to write the parsers against.
 
-Round 1 told us what does NOT work:
-  - momo's getGoodsRealTimeInfo answers 200 with {"success": false,
-    "resultMessage": "查無商品"} for goodsCode 15462752, so either the endpoint
-    or the payload shape is wrong — the code itself is right, the user's own
-    product URL uses it.
-  - all three eslite URLs returned *exactly* 13583 bytes, identical length for a
-    search page and two different products. That is one canned shell/challenge
-    page, not content.
+What the first two rounds established:
 
-So round 2 stops guessing at JSON shapes and looks at the HTML the browser
-actually gets, and prints the head of eslite's canned page to identify it.
+  momo — the product page returns 200 with title "momo購物網 -- Mobile管理訊息",
+    zero ld+json and no price anywhere. That is momo's bot-guard page, not the
+    product. Its API is alive (sending `i_code` instead of `goodsCode` gets
+    "goodsCode is empty!!!", so it reads the field) but answers 查無商品 for a
+    code taken from the owner's own product URL. Both smell like the same cause:
+    we arrive with no session. Round 3 warms a cookie jar on the homepage first.
+
+  eslite — every URL returns the identical 13,583-byte page: a Vue SPA shell
+    (vue.runtime + axios + vue-router + pinia) behind Cloudflare. There is no
+    server-rendered product HTML to scrape, ever, so the current parser cannot
+    work by design. The content arrives over XHR, so round 3 reads the JS bundle
+    to find the API base rather than guessing endpoints. The shell also links
+    /llms.txt — eslite publishing a machine-readable version of itself — which
+    would be the cleanest source of all if it carries product data.
 
 It prints shapes and short samples, never whole pages.
 
@@ -25,9 +29,9 @@ It prints shapes and short samples, never whole pages.
 
 from __future__ import annotations
 
-import json
 import re
 import sys
+from urllib.parse import urljoin
 
 import requests
 
@@ -37,11 +41,7 @@ from config import SETTINGS  # noqa: E402
 UA = SETTINGS.user_agent
 
 MOMO_ITEM = "15462752"
-ESLITE_PRODUCTS = [
-    "10042014802683176604005",
-    "10042014802683165873009",
-]
-ESLITE_SEARCH = "https://www.eslite.com/search?keyword=beyblade"
+ESLITE_PRODUCT = "10042014802683176604005"
 
 BROWSER_HEADERS = {
     "User-Agent": UA,
@@ -60,123 +60,144 @@ def hr(title: str) -> None:
     print(f"\n{'=' * 12} {title} {'=' * 12}")
 
 
-def show_ld_json(html: str) -> None:
-    blocks = re.findall(
-        r'<script[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
-        html, re.I | re.S)
-    print("ld+json blocks:", len(blocks))
-    for raw in blocks:
-        try:
-            obj = json.loads(raw.strip())
-        except Exception:  # noqa: BLE001
-            print("   (unparseable block, head:", raw.strip()[:120], ")")
-            continue
-        for it in (obj if isinstance(obj, list) else [obj]):
-            if not isinstance(it, dict):
-                continue
-            print("   @type:", it.get("@type"), "| keys:", list(it)[:14])
-            if it.get("@type") in ("Product", "product"):
-                print("   name:", it.get("name"))
-                print("   offers:", json.dumps(it.get("offers"), ensure_ascii=False)[:400])
+def title_of(html: str) -> str | None:
+    m = re.search(r"<title[^>]*>(.*?)</title>", html, re.I | re.S)
+    return m.group(1).strip()[:120] if m else None
 
 
-def show_meta(html: str) -> None:
-    """Print the og:/product: meta tags — the most stable price source on a
-    server-rendered shop page."""
-    hits = re.findall(
-        r'<meta[^>]+(?:property|name)=["\']((?:og|product|twitter):[^"\']+)["\']'
-        r'[^>]+content=["\']([^"\']{0,120})["\']', html, re.I)
-    print("meta tags:", len(hits))
-    for k, v in hits[:20]:
-        print(f"   {k} = {v}")
+# --- momo -------------------------------------------------------------------
+
+def probe_momo_with_session() -> None:
+    """Warm a cookie jar on the homepage before touching the product/API.
+
+    A bare request has no momo session cookie; that is the most likely reason
+    both the page and the API refuse us.
+    """
+    hr("momo — with a warmed session")
+    s = requests.Session()
+    s.headers.update(BROWSER_HEADERS)
+    try:
+        home = s.get("https://www.momoshop.com.tw/", timeout=25)
+        print("homepage:", home.status_code, "| title:", title_of(home.text))
+        print("cookies after homepage:", list(s.cookies.get_dict()))
+
+        url = f"https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code={MOMO_ITEM}"
+        page = s.get(url, headers={"Referer": "https://www.momoshop.com.tw/"}, timeout=25)
+        print("\nproduct page:", page.status_code, "| bytes:", len(page.text))
+        print("title:", title_of(page.text))
+        html = page.text
+        print("blocked-page marker:", "管理訊息" in html)
+        for pat, name in (
+            (r'"price"\s*:\s*"?(\d[\d,]*)', '"price"'),
+            (r'seoPrice[^0-9]{0,20}(\d[\d,]*)', "seoPrice"),
+            (r'itemprop=["\']price["\'][^>]*content=["\']([\d.,]+)', "itemprop=price"),
+            (r'og:title["\'][^>]*content=["\']([^"\']{0,80})', "og:title"),
+        ):
+            m = re.search(pat, html, re.I)
+            print(f"   {name}: {m.group(1) if m else None}")
+
+        api = s.post(
+            "https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo",
+            json={"goodsCode": MOMO_ITEM},
+            headers={
+                "Content-Type": "application/json;charset=UTF-8",
+                "Accept": "application/json, text/plain, */*",
+                "Origin": "https://www.momoshop.com.tw",
+                "Referer": url,
+                "X-Requested-With": "XMLHttpRequest",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+            },
+            timeout=20,
+        )
+        print("\nAPI with session:", api.status_code, "::", api.text[:400])
+    except Exception as exc:  # noqa: BLE001
+        print("momo session probe failed:", type(exc).__name__, exc)
 
 
-def probe_momo_html() -> None:
-    """The product page itself. If momo server-renders price/availability we do
-    not need the private API at all."""
+def probe_momo_search() -> None:
+    """momo's search endpoint. If it answers, discovery works even when the
+    per-item API does not."""
+    hr("momo — search endpoints")
+    s = requests.Session()
+    s.headers.update(BROWSER_HEADERS)
+    try:
+        s.get("https://www.momoshop.com.tw/", timeout=20)
+    except Exception:  # noqa: BLE001
+        pass
     for label, url in (
-        ("classic", f"https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code={MOMO_ITEM}"),
-        ("short", f"https://www.momoshop.com.tw/product/{MOMO_ITEM}"),
+        ("search page", "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=BEYBLADE"),
+        ("mobile search", "https://m.momoshop.com.tw/search.momo?searchKeyword=BEYBLADE"),
     ):
-        hr(f"momo HTML ({label}) — {url}")
         try:
-            r = requests.get(url, headers=BROWSER_HEADERS, timeout=25)
-            print("status:", r.status_code, "| final url:", r.url, "| bytes:", len(r.text))
+            r = s.get(url, timeout=25)
             html = r.text
-            title = re.search(r"<title[^>]*>(.*?)</title>", html, re.I | re.S)
-            print("title:", title.group(1).strip()[:120] if title else None)
-            show_meta(html)
-            show_ld_json(html)
-            # momo puts the price in a few well-known spots; show whatever matches.
-            for pat, name in (
-                (r'"goodsPrice"\s*:\s*"?(\d[\d,]*)', "goodsPrice json"),
-                (r'id=["\']goodsPrice["\'][^>]*>\s*\$?([\d,]+)', "#goodsPrice"),
-                (r'class=["\'][^"\']*price[^"\']*["\'][^>]*>\s*\$?([\d,]+)', "class*=price"),
-                (r'i_code["\']?\s*[:=]\s*["\']?(\d+)', "i_code echo"),
-            ):
-                m = re.search(pat, html, re.I)
-                print(f"   {name}: {m.group(1) if m else None}")
-        except Exception as exc:  # noqa: BLE001
-            print("failed:", type(exc).__name__, exc)
-
-
-def probe_momo_api_variants() -> None:
-    """Round 1 got 查無商品. Try the payload/endpoint variants momo has shipped."""
-    hr(f"momo API variants — {MOMO_ITEM}")
-    headers = {
-        "User-Agent": UA,
-        "Content-Type": "application/json;charset=UTF-8",
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
-        "Origin": "https://www.momoshop.com.tw",
-        "Referer": f"https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code={MOMO_ITEM}",
-        "X-Requested-With": "XMLHttpRequest",
-    }
-    variants = [
-        ("moecapp goodsCode", "https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo",
-         {"goodsCode": MOMO_ITEM}),
-        ("moecapp i_code", "https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo",
-         {"i_code": MOMO_ITEM}),
-        ("moecapp +host", "https://www.momoshop.com.tw/api/moecapp/getGoodsRealTimeInfo",
-         {"goodsCode": MOMO_ITEM, "host": "momoshop", "flag": "1"}),
-        ("goodsDetail", "https://www.momoshop.com.tw/api/goods/getGoodsDetail",
-         {"goodsCode": MOMO_ITEM}),
-        ("eccapi", "https://eccapi.momoshop.com.tw/user/goods/getGoodsRealTimeInfo",
-         {"goodsCode": MOMO_ITEM}),
-    ]
-    for label, url, payload in variants:
-        try:
-            r = requests.post(url, json=payload, headers=headers, timeout=20)
-            body = r.text[:300].replace("\n", " ")
-            print(f"   [{label}] {r.status_code} :: {body}")
+            codes = sorted(set(re.findall(r"i_code=(\d{6,})", html)))
+            print(f"   [{label}] {r.status_code} | bytes {len(html)} | title "
+                  f"{title_of(html)} | i_codes {len(codes)} {codes[:8]}")
         except Exception as exc:  # noqa: BLE001
             print(f"   [{label}] failed: {type(exc).__name__} {exc}")
 
 
-def probe_eslite(url: str, label: str) -> None:
-    hr(f"eslite {label} — {url}")
+# --- eslite -----------------------------------------------------------------
+
+def probe_eslite_llms() -> None:
+    """The shell advertises /llms.txt. If eslite publishes a machine-readable
+    version of itself, that is a sanctioned source and beats reverse-engineering."""
+    hr("eslite /llms.txt")
+    for url in ("https://www.eslite.com/llms.txt",
+                f"https://www.eslite.com/product/{ESLITE_PRODUCT}.md"):
+        try:
+            r = requests.get(url, headers={"User-Agent": UA,
+                                           "Accept": "text/markdown,text/plain,*/*"},
+                             timeout=25)
+            print(f"\n{url} -> {r.status_code} | {r.headers.get('content-type')} | "
+                  f"{len(r.text)} bytes")
+            if r.status_code == 200:
+                print(r.text[:1500])
+        except Exception as exc:  # noqa: BLE001
+            print(f"{url} failed:", type(exc).__name__, exc)
+
+
+def probe_eslite_bundle() -> None:
+    """Read the SPA's own JS to find the API base it calls.
+
+    The page is a Vue shell, so the product data comes over XHR. The bundle
+    contains the URLs; that is far more reliable than guessing endpoint names.
+    """
+    hr("eslite — API endpoints from the JS bundle")
+    base = "https://www.eslite.com/"
     try:
-        r = requests.get(url, headers=BROWSER_HEADERS, timeout=25)
-        print("status:", r.status_code, "| final url:", r.url, "| bytes:", len(r.text))
-        print("content-type:", r.headers.get("content-type"))
-        print("server:", r.headers.get("server"), "| set-cookie:",
-              str(r.headers.get("set-cookie"))[:160])
-        html = r.text
-        # Round 1: every eslite URL returned the same 13583 bytes. Print the head
-        # so we can name what that page actually is (challenge? SPA shell? 404?).
-        print("--- first 1200 chars ---")
-        print(html[:1200])
-        print("--- end ---")
-        print("has __NEXT_DATA__:", "__NEXT_DATA__" in html)
-        print("product links:", len(set(re.findall(r"/product/(\d{6,})", html))))
-        show_ld_json(html)
+        shell = requests.get(base, headers=BROWSER_HEADERS, timeout=25).text
+        assets = sorted(set(re.findall(r'src="(/assets/[^"]+\.js)"', shell)))
+        assets += sorted(set(re.findall(r'href="(/assets/[^"]+\.js)"', shell)))
+        print("asset scripts in shell:", assets[:10])
+
+        seen_hosts: set[str] = set()
+        seen_paths: set[str] = set()
+        for path in assets[:6]:
+            try:
+                js = requests.get(urljoin(base, path),
+                                  headers={"User-Agent": UA}, timeout=30).text
+            except Exception as exc:  # noqa: BLE001
+                print(f"   {path}: fetch failed {exc}")
+                continue
+            print(f"   {path}: {len(js)} bytes")
+            for host in re.findall(r'https://([a-z0-9.-]*(?:api|athena|eslite)[a-z0-9.-]*)/',
+                                   js, re.I):
+                seen_hosts.add(host)
+            for p in re.findall(r'["\'`](/api/[a-zA-Z0-9/_\-{}$.]{3,60})["\'`]', js):
+                seen_paths.add(p)
+        print("\nAPI-ish hosts found:", sorted(seen_hosts)[:20])
+        print("API paths found:", sorted(seen_paths)[:40])
     except Exception as exc:  # noqa: BLE001
-        print("failed:", type(exc).__name__, exc)
+        print("eslite bundle probe failed:", type(exc).__name__, exc)
 
 
 if __name__ == "__main__":
-    probe_momo_html()
-    probe_momo_api_variants()
-    probe_eslite(f"https://www.eslite.com/product/{ESLITE_PRODUCTS[0]}", "product")
-    probe_eslite(ESLITE_SEARCH, "search")
+    probe_momo_with_session()
+    probe_momo_search()
+    probe_eslite_llms()
+    probe_eslite_bundle()
     print("\n[probe] done")
