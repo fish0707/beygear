@@ -37,6 +37,11 @@ jobs:
       - name: Install deps
         run: pip install -r radar/requirements.txt
 
+      # data/ 由 .gitkeep 保留在 repo 中，但 checkout 之外的情境（或有人刪掉）
+      # 仍可能缺目錄，而 SQLite 不會自己建父目錄。
+      - name: Ensure data dir
+        run: mkdir -p data
+
       # radar.db 跟著 repo 走，狀態才能跨執行保存。沒有它就偵測不到「補貨」
       # ——每一輪都會看起來像第一次見到這個商品。
       - name: Run one radar pass

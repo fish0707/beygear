@@ -1,0 +1,3 @@
+# 這個檔案的存在是為了讓 git 保留 data/ 目錄。
+# 沒有它，Actions checkout 出來就沒有 data/，SQLite 會因為目錄不存在而
+# 開檔失敗（unable to open database file）。radar.db 與網站用的 JSON 都寫在這裡。
