@@ -52,12 +52,7 @@ class MomoMonitor:
             resp = self._session.post(
                 API_URL,
                 json={"goodsCode": w.item_id},
-                headers={
-                    "User-Agent": SETTINGS.user_agent,
-                    "Content-Type": "application/json;charset=UTF-8",
-                    "Referer": GOODS_URL.format(code=w.item_id),
-                    "Accept": "application/json",
-                },
+                headers=self._headers(w.item_id),
                 timeout=SETTINGS.http_timeout_sec,
             )
             resp.raise_for_status()
@@ -68,6 +63,24 @@ class MomoMonitor:
             return None
 
         return self.parse(data, w)
+
+    @staticmethod
+    def _headers(item_id: str) -> dict:
+        """Headers that make the call look like the product page's own XHR.
+
+        momo answers 406 Not Acceptable to a bare JSON POST. It checks for the
+        request shape its own front end sends, so Origin, X-Requested-With and a
+        browser Accept-Language have to be present, not just Accept: application/json.
+        """
+        return {
+            "User-Agent": SETTINGS.user_agent,
+            "Content-Type": "application/json;charset=UTF-8",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+            "Origin": "https://www.momoshop.com.tw",
+            "Referer": GOODS_URL.format(code=item_id),
+            "X-Requested-With": "XMLHttpRequest",
+        }
 
     @staticmethod
     def parse(data: dict, w: Watch) -> ProductSnapshot:
