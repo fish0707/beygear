@@ -20,7 +20,9 @@ REAL_HTML = r'''
  {\"goodsCode\":\"TP00074150005933\",\"goodsName\":\"鳳凰飛翼 爆裂陀螺 神杖 BX-23 正拉線 發射器\",
   \"goodsPrice\":\"$$528\",\"goodsStock\":\"62337\"},
  {\"goodsCode\":\"15489158\",\"goodsName\":\"【TAKARA TOMY】戰鬥陀螺X 戰犀號角 BX-19 3-80S\",
-  \"goodsPrice\":\"$$799\",\"goodsStock\":\"0\"}
+  \"goodsPrice\":\"$$799\",\"goodsStock\":\"0\"},
+ {\"goodsCode\":\"12312752\",\"goodsName\":\"【BAKUGAN 爆丸】爆丸戰鬥場(新款爆丸)\",
+  \"goodsPrice\":\"$$449\",\"goodsStock\":\"24\"}
 ]}";</script>
 '''
 
@@ -67,3 +69,10 @@ def test_gear_specs_are_not_mistaken_for_model_codes():
 def test_broken_page_returns_nothing_rather_than_raising():
     assert MomoMonitor.parse_search("") == []
     assert MomoMonitor.parse_search('"goodsInfoList": [ {oops') == []
+
+
+def test_fuzzy_search_hits_that_are_not_beyblade_are_dropped():
+    """搜「戰鬥陀螺」也會撈到別牌玩具(BAKUGAN 爆丸);wiring 要真的濾掉它,
+    不能只是規則本身對,呼叫路徑上沒接到。"""
+    by_id = {s.item_id: s for s in MomoMonitor.parse_search(REAL_HTML)}
+    assert "12312752" not in by_id

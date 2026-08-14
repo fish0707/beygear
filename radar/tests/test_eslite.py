@@ -32,6 +32,15 @@ REAL_PAYLOAD = {
                     "stock": "12",
                 },
             },
+            {
+                "id": "10052305272682863630006",
+                "fields": {
+                    "name": "【ONE HOUSE】享樂趣加大貨櫃公仔盒 4入",
+                    "final_price": "590",
+                    "mprice": "590",
+                    "stock": "2",
+                },
+            },
         ],
     }
 }
@@ -39,6 +48,7 @@ REAL_PAYLOAD = {
 
 def test_reads_price_and_stock_from_the_api():
     snaps = EsliteMonitor.parse_search(REAL_PAYLOAD)
+    # 第三筆(公仔收納盒)是誠品模糊比對撈到的不相干商品,要被濾掉。
     assert len(snaps) == 2
 
     book = snaps[0]
@@ -62,3 +72,8 @@ def test_product_key_falls_back_when_there_is_no_model_code():
 def test_empty_or_malformed_payload_is_not_an_error():
     assert EsliteMonitor.parse_search({}) == []
     assert EsliteMonitor.parse_search({"hits": {"hit": [{"id": "1", "fields": {}}]}}) == []
+
+
+def test_fuzzy_search_hits_that_are_not_beyblade_are_dropped():
+    ids = {s.item_id for s in EsliteMonitor.parse_search(REAL_PAYLOAD)}
+    assert "10052305272682863630006" not in ids

@@ -29,7 +29,7 @@ from urllib.parse import quote
 
 from config import ORIGINAL_PRICES, SETTINGS, Search
 from monitors.base import ProductSnapshot
-from monitors.discovery import DiscoveryMonitor
+from monitors.discovery import DiscoveryMonitor, looks_relevant
 
 SEARCH_URL = "https://www.momoshop.com.tw/search/searchShop.jsp?keyword={kw}"
 PRODUCT_URL = "https://www.momoshop.com.tw/product/{code}"
@@ -96,8 +96,8 @@ class MomoMonitor(DiscoveryMonitor):
             return None  # 摩天商城賣家商品,網址規則未驗證,不收
 
         name = str(goods.get("goodsName") or "").strip()
-        if not name:
-            return None
+        if not name or not looks_relevant(name):
+            return None  # 搜尋關鍵字掃到的別牌商品(例:BAKUGAN 爆丸戰鬥場)
 
         price = _money(goods.get("goodsPrice")) or _money(
             _dig(goods, "goodsPriceModel", "basePrice", "price")

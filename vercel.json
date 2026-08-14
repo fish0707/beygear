@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": { "deploymentEnabled": { "main": true } },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':(exclude)data'"
+}

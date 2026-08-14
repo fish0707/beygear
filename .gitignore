@@ -18,3 +18,7 @@ node_modules/
 .next/
 out/
 .vercel
+
+# Node / Next.js 建置產物
+.next/
+node_modules/

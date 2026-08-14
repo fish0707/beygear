@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 import requests
@@ -37,3 +38,17 @@ class DiscoveryMonitor:
 
     def _search(self, search: Search) -> list[ProductSnapshot]:  # pragma: no cover - 由子類別實作
         raise NotImplementedError
+
+
+# 搜尋關鍵字會掃到別的東西:momo 搜「戰鬥陀螺」會回「爆丸戰鬥場」(BAKUGAN,
+# 完全不同的玩具),誠品會回「享樂趣加大貨櫃公仔盒」。這些混進來不只是雜訊 ——
+# 爆丸那筆一度成為首頁的「最低有貨價」,等於用一個不相干的商品誤導讀者。
+#
+# 判斷標準保守:名稱要嘛提到陀螺 / beyblade,要嘛帶有 Beyblade X 的型號代碼。
+_RELEVANT_RE = re.compile(r"陀螺|beyblade|(?<![A-Za-z0-9])(?:BX|UX|CX)-\d{2}(?![0-9])",
+                          re.IGNORECASE)
+
+
+def looks_relevant(name: str) -> bool:
+    """這個商品名稱看起來真的跟 Beyblade 有關嗎。"""
+    return bool(_RELEVANT_RE.search(name or ""))

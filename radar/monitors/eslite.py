@@ -24,7 +24,7 @@ from typing import Any, Optional
 
 from config import ORIGINAL_PRICES, SETTINGS, Search
 from monitors.base import ProductSnapshot
-from monitors.discovery import DiscoveryMonitor
+from monitors.discovery import DiscoveryMonitor, looks_relevant
 
 API_URL = "https://athena.eslite.com/api/v2/search"
 PRODUCT_URL = "https://www.eslite.com/product/{id}"
@@ -71,8 +71,8 @@ class EsliteMonitor(DiscoveryMonitor):
         item_id = str(hit.get("id") or "").strip()
         fields = hit.get("fields") or {}
         name = str(fields.get("name") or "").strip()
-        if not item_id or not name:
-            return None
+        if not item_id or not name or not looks_relevant(name):
+            return None  # 誠品的模糊比對會帶回不相干的商品(例:公仔收納盒)
 
         price = _to_int(fields.get("final_price"))
         stock = _to_int(fields.get("stock"))
