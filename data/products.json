@@ -1,5 +1,5 @@
 {
-  "generated_at": 1787478347,
+  "generated_at": 1787481008,
   "products": [
     {
       "at_or_below_list_price": false,
@@ -895,7 +895,7 @@
         }
       ],
       "in_stock_anywhere": true,
-      "last_updated_at": 1787478345,
+      "last_updated_at": 1787481008,
       "list_price": 449,
       "listings": [
         {
@@ -903,7 +903,7 @@
           "first_seen_at": 1787033044,
           "is_original_price": true,
           "item_id": "13098485",
-          "last_updated_at": 1787478345,
+          "last_updated_at": 1787481008,
           "markup_pct": -49.0,
           "name": "【Spin Fighters 魔幻陀螺】魔幻陀螺6-烈牙戰神",
           "on_sale_ts": null,
@@ -1267,7 +1267,7 @@
         }
       ],
       "in_stock_anywhere": true,
-      "last_updated_at": 1787478345,
+      "last_updated_at": 1787481008,
       "list_price": 1490,
       "listings": [
         {
@@ -1275,7 +1275,7 @@
           "first_seen_at": 1786615173,
           "is_original_price": true,
           "item_id": "15489157",
-          "last_updated_at": 1787478345,
+          "last_updated_at": 1787481008,
           "markup_pct": -26.2,
           "name": "【TAKARA TOMY】戰鬥陀螺X  UX-03 魔導神杖  5-70DB  鳳凰飛翼BX-23含發射器一組(美版)",
           "on_sale_ts": null,
@@ -1579,7 +1579,7 @@
         }
       ],
       "in_stock_anywhere": true,
-      "last_updated_at": 1787478345,
+      "last_updated_at": 1787481008,
       "list_price": 1490,
       "listings": [
         {
@@ -1587,7 +1587,7 @@
           "first_seen_at": 1786615173,
           "is_original_price": true,
           "item_id": "15489159",
-          "last_updated_at": 1787478345,
+          "last_updated_at": 1787481008,
           "markup_pct": -19.5,
           "name": "【TAKARA TOMY】戰鬥陀螺X  UX-03 魔導神杖 5-70DB 鳳凰飛翼BX-23 武士聖劍 BX-45 兩入/單入包裝組(美版)",
           "on_sale_ts": null,
@@ -1647,7 +1647,7 @@
         }
       ],
       "in_stock_anywhere": true,
-      "last_updated_at": 1787478345,
+      "last_updated_at": 1787481008,
       "list_price": 1999,
       "listings": [
         {
@@ -1655,7 +1655,7 @@
           "first_seen_at": 1786615173,
           "is_original_price": true,
           "item_id": "15502059",
-          "last_updated_at": 1787478345,
+          "last_updated_at": 1787481008,
           "markup_pct": -10.0,
           "name": "【TAKARA TOMY】戰鬥陀螺X 鳳凰飛翼BX-23 魔導神杖 UX-03 綠鱷魚 隕星龍騎士UX-17含射器一組(美版)",
           "on_sale_ts": null,
