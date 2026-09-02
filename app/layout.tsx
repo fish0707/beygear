@@ -70,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="flex gap-4 text-sm text-muted">
               <Link href="/" className="hover:text-slate-100">現在有貨</Link>
+              <Link href="/analyze" className="hover:text-slate-100">發射分析</Link>
               <Link href="/about" className="hover:text-slate-100">資料說明</Link>
             </nav>
           </div>

@@ -12,6 +12,7 @@
 | `radar/` | Python 監控器（momo / PChome / Funbox / 誠品）、狀態機、Telegram 通知 |
 | `data/`  | 雷達產出的資料：`radar.db`（狀態）與網站用的 JSON 快照 |
 | `.github/workflows/radar.yml` | 每 15 分鐘雲端執行一輪 |
+| `docs/`  | 交接說明(把 `/analyze` 併進其他站需要知道的事) |
 
 ## 資料流
 
