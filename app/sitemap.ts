@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: SITE_URL, lastModified: updated, changeFrequency: 'hourly', priority: 1 },
+    { url: `${SITE_URL}/analyze`, lastModified: updated, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE_URL}/about`, lastModified: updated, changeFrequency: 'monthly', priority: 0.5 },
     ...getModelProducts().map((p) => ({
       url: `${SITE_URL}/model/${p.product_key}`,
