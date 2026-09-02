@@ -98,7 +98,7 @@ export function ListingTable({ listings }: { listings: Listing[] }) {
                     href={l.url}
                     target="_blank"
                     rel="nofollow noopener"
-                    className="hover:text-brand"
+                    className="text-brand hover:underline"
                   >
                     {l.name}
                   </a>

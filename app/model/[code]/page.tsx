@@ -95,7 +95,7 @@ export default function ModelPage({ params }: { params: { code: string } }) {
                       href={l.url}
                       target="_blank"
                       rel="nofollow noopener"
-                      className="hover:text-brand"
+                      className="text-brand hover:underline"
                     >
                       {l.name}
                     </a>
