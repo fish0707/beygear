@@ -53,3 +53,19 @@ python run.py --once                  # 跑一輪
 python export_web.py --db radar.db --out ../data
 python -m pytest tests/ -q            # 44 tests
 ```
+
+## 網站頁面
+
+| 頁面 | 內容 |
+|------|------|
+| `/` | 全部觀測到的商品、即時庫存、最近變動時間軸 |
+| `/model/{code}` | 有確認型號代碼的商品各自一頁,價格與補貨歷史 |
+| `/analyze` | 發射數據分析——上傳 BeyGear App 備份 JSON,純瀏覽器端運算,不上傳伺服器 |
+| `/about` | 資料來源與已知限制 |
+
+## 曝光機制
+
+- **sitemap.xml / robots.ts** — 全站頁面自動列入,`/model/*` 依雷達資料動態產生
+- **IndexNow** — `scripts/indexnow.mjs` 在 `postbuild` 自動跑,於 Vercel production 部署時通知 Bing/DuckDuckGo/Seznam/Yandex。金鑰檔在 `public/2b28b7c77cca005fbc13a6e6b01d000c.txt`
+- **llms.txt + robots 放行 AI 爬蟲** — `public/llms.txt`,被 AI 助理引用時能正確描述站內每個頁面在做什麼
+- **JSON-LD** — 首頁 CollectionPage、型號頁 Product/BreadcrumbList、`/analyze` WebApplication/BreadcrumbList、`/about` AboutPage,全部帶 `publisher` 指回同一個 Organization

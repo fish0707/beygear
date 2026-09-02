@@ -1,12 +1,21 @@
 import type { Metadata } from 'next'
 import ShotAnalyzer from '@/components/ShotAnalyzer'
+import { SITE_URL } from '@/lib/site'
+
+const TITLE = '發射數據分析'
+const DESCRIPTION =
+  '上傳 BeyGear 備份 JSON,算出 App 介面上看不到的圈數、上升時間與加速度分佈,' +
+  '並用統計檢定判斷你改的動作到底有沒有效。資料只在瀏覽器裡處理。'
 
 export const metadata: Metadata = {
-  title: '發射數據分析',
-  description:
-    '上傳 BeyGear 備份 JSON,算出 App 介面上看不到的圈數、上升時間與加速度分佈,' +
-    '並用統計檢定判斷你改的動作到底有沒有效。資料只在瀏覽器裡處理。',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/analyze' },
+  openGraph: {
+    url: `${SITE_URL}/analyze`,
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 }
 
 export default function Analyze() {
@@ -92,6 +101,34 @@ export default function Analyze() {
           </li>
         </ul>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                  { '@type': 'ListItem', position: 1, name: '現在有貨', item: SITE_URL },
+                  { '@type': 'ListItem', position: 2, name: TITLE, item: `${SITE_URL}/analyze` },
+                ],
+              },
+              {
+                '@type': 'WebApplication',
+                name: TITLE,
+                url: `${SITE_URL}/analyze`,
+                description: DESCRIPTION,
+                applicationCategory: 'SportsApplication',
+                operatingSystem: 'Any',
+                offers: { '@type': 'Offer', price: '0', priceCurrency: 'TWD' },
+                publisher: { '@id': `${SITE_URL}/#publisher` },
+              },
+            ],
+          }),
+        }}
+      />
     </div>
   )
 }

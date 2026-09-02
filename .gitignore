@@ -22,3 +22,4 @@ out/
 # Node / Next.js 建置產物
 .next/
 node_modules/
+*.tsbuildinfo

@@ -59,6 +59,20 @@ export default function Home() {
         <Stat label="累計變動紀錄" value={String(meta.history_count)} />
       </section>
 
+      <section>
+        <Link
+          href="/analyze"
+          className="block rounded-lg border border-line bg-panel p-5 hover:border-brand"
+        >
+          <p className="text-xs font-medium text-brand">陀螺玩家的另一個工具</p>
+          <h2 className="mt-1 text-lg font-semibold">發射數據分析 →</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted">
+            上傳 BeyGear 備份 JSON,算出圈數、上升時間、加速度這些 App 介面上看不到的數字,
+            用統計檢定判斷你改的動作到底有沒有效——不猜姿勢,只給一把尺。
+          </p>
+        </Link>
+      </section>
+
       {models.length > 0 && (
         <section>
           <h2 className="text-xl font-semibold">依型號查看</h2>

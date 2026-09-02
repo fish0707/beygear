@@ -1,0 +1,48 @@
+# Beygear 陀螺捕獲情報 — AI-readable summary (llms.txt)
+# Official site: https://beygear.calc-mates.com
+
+## About this site
+
+Beygear tracks Beyblade X spinning-top availability, restocks, and pricing
+across Taiwanese retail channels (momo, 誠品線上/eslite), scanning every 15
+minutes. Popular models are commonly resold above list price after selling
+out; this site exists to answer "where can I still buy at a normal price,
+and for how much."
+
+The site also hosts a client-side data-analysis tool for players using the
+BeyGear companion app to log their launches.
+
+## Pages
+
+- Homepage: /
+  Live listing of every tracked product across momo and eslite: current
+  price, stock, whether it's at or below the shop's own list price, plus a
+  recent-changes timeline (restocks, price drops, new listings).
+
+- Model pages: /model/{code}
+  One page per Beyblade X model with a confirmed model code (e.g. BX-19,
+  UX-15). Price history, restock count, and per-listing current status.
+  Bundles and unrelated matches picked up by fuzzy retailer search are
+  filtered out — see /about for the relevance rule.
+
+- Launch data analysis: /analyze
+  Upload a BeyGear app backup JSON (processed entirely in the browser, never
+  uploaded to any server) to compute metrics the app's own UI doesn't show:
+  revolutions during spin-up, rise time, and acceleration (using the same
+  formula the app displays, verified to match its on-screen values). Runs a
+  Mann-Whitney U test to check whether a technique change actually moved the
+  numbers, rather than comparing raw averages on small samples. Deliberately
+  does not offer form/technique advice — see the page for why.
+
+- Data provenance: /about
+  How the price data is collected (momo and eslite's own public search
+  responses), known limitations, and the distinction between a shop's own
+  listed price and the manufacturer's suggested retail price.
+
+## Data
+
+- data/snapshot.json — current state of every tracked listing
+- data/products.json — per-model history
+- data/meta.json — generation timestamp and counts
+
+Source and radar code: https://github.com/fish0707/beygear
