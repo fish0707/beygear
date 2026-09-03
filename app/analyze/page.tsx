@@ -48,6 +48,18 @@ export default function Analyze() {
           帶動陀螺的實際時長。這兩個量 App 介面上都看不到。
         </p>
 
+        <h3 className="mt-5 font-medium">每圈耗時比圈數更值得看</h3>
+        <p className="mt-2 text-muted">
+          「上升時間 ÷ 圈數」= 加速期間陀螺轉一圈要多久,越小代表全程轉得越快。
+          以每一天為樣本時,這是唯一真正預測當天 SP 的量(r = −0.724);
+          圈數反而是 −0.249,方向是反的 —— 圈數中位數最低的那一天 SP 最高。
+        </p>
+        <p className="mt-2 text-muted">
+          圈數看起來跟 SP 正相關是代數糾纏:圈數多的球上升時間也長,每圈耗時
+          幾乎沒變(9 圈 10.9ms、10 圈 11.4ms、11 圈 12.0ms)。多轉的那幾圈是
+          多花時間換來的,不是轉更快。所以追圈數沒有用,要追的是每圈耗時。
+        </p>
+
         <h3 className="mt-5 font-medium">加速度用的是 App 自己的公式</h3>
         <p className="mt-2 text-muted">
           反推自 App 顯示的數值:(峰值 rpm − 第二筆 rpm) ÷ (峰值時間 − 第二筆時間),

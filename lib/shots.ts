@@ -42,6 +42,15 @@ export type Shot = {
   accel: number
   /** sp/accel,約等於上升時間;只有 SP 與加速度兩欄時可以用它跟別人對照。 */
   ratio: number
+  /**
+   * 上升時間 ÷ 圈數 = 加速期間陀螺轉一圈要多久,越小代表全程轉得越快。
+   *
+   * 以「每一天」為樣本(21 天)時,這是唯一真正預測當天 SP 的量:r = −0.724,
+   * 而圈數是 −0.249(方向還是反的)。圈數與 SP 看起來的正相關是代數糾纏 ——
+   * 圈數多的球上升時間也長,每圈耗時幾乎沒變(9圈 10.9ms、10圈 11.4ms、
+   * 11圈 12.0ms),多轉的圈是多花時間換來的,不是轉更快。
+   */
+  msPerRev: number
   /** 峰值那一步的斜率遠高於整段中位數 = 感測器跳點,不是真的打出來的。 */
   glitch: boolean
 }
@@ -138,6 +147,7 @@ export function toShot(r: RawRecord): Shot | null {
     riseMs,
     accel,
     ratio: accel > 0 ? sp / accel : NaN,
+    msPerRev: riseMs / peak,
     glitch,
   }
 }
@@ -227,6 +237,7 @@ export type GroupStats = {
   accelMedian: number
   revsMedian: number
   riseMedian: number
+  msPerRevMedian: number
 }
 
 export function groupStats(shots: Shot[]): GroupStats {
@@ -237,6 +248,7 @@ export function groupStats(shots: Shot[]): GroupStats {
     accelMedian: median(shots.map((s) => s.accel)),
     revsMedian: median(shots.map((s) => s.revs)),
     riseMedian: median(shots.map((s) => s.riseMs)),
+    msPerRevMedian: median(shots.map((s) => s.msPerRev)),
   }
 }
 

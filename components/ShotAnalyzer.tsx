@@ -279,6 +279,7 @@ function Hidden({ clean }: { clean: Shot[] }) {
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.accel)))}</td>
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.revs)), 1)}</td>
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.riseMs)))}</td>
+      <td className="py-2 text-right">{fmt(median(g.map((s) => s.msPerRev)), 1)}</td>
     </tr>
   )
 
@@ -298,6 +299,7 @@ function Hidden({ clean }: { clean: Shot[] }) {
             <th className="py-2 text-right font-normal">加速度</th>
             <th className="py-2 text-right font-normal">圈數</th>
             <th className="py-2 text-right font-normal">上升時間</th>
+            <th className="py-2 text-right font-normal">每圈耗時</th>
           </tr>
         </thead>
         <tbody>
@@ -390,6 +392,7 @@ function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: numbe
             <th className="py-2 text-right font-normal">加速度中位</th>
             <th className="py-2 text-right font-normal">圈數</th>
             <th className="py-2 text-right font-normal">上升時間</th>
+            <th className="py-2 text-right font-normal">每圈耗時</th>
           </tr>
         </thead>
         <tbody>
@@ -406,6 +409,7 @@ function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: numbe
                 <td className="py-2 text-right">{fmt(g.accelMedian)}</td>
                 <td className="py-2 text-right">{fmt(g.revsMedian, 1)}</td>
                 <td className="py-2 text-right">{fmt(g.riseMedian)}</td>
+                <td className="py-2 text-right">{fmt(g.msPerRevMedian, 1)}</td>
               </tr>
             )
           })}
