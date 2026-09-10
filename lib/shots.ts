@@ -112,15 +112,28 @@ export function toShot(r: RawRecord): Shot | null {
     return null
   }
 
-  let peak = 0
-  for (let i = 1; i < rpms.length; i++) if (rpms[i] > rpms[peak]) peak = i
+  // 上升期結束在**第一個局部極大**,不是整串的最大值。
+  //
+  // 繩子抽完、陀螺脫離發射器的瞬間,感測器會先掉一筆再彈一筆假的高點
+  // (例如 9,921 → 7,440 → 13,251),那是脫離時的雜訊,不是陀螺真的轉到那麼快。
+  // 523 發裡有 18% 的紀錄整串最大值落在這個假高點上,用它當峰值會讓圈數多兩圈、
+  // 上升時間多十幾毫秒。以 App 自己算的 evalSp 對照:它出現在 rpms 陣列裡的
+  // 289 發中,有 288 發等於第一個局部極大 —— App 用的就是這個定義。
+  let peak = rpms.length - 1
+  for (let i = 1; i < rpms.length - 1; i++) {
+    if (rpms[i + 1] < rpms[i]) {
+      peak = i
+      break
+    }
+  }
   if (peak < 2) return null
 
   const riseMs = times[peak] - times[0]
   const accelSpan = times[peak] - times[1]
   if (riseMs <= 0 || accelSpan <= 0) return null
 
-  const sp = r.evalSp ?? r.maxRpm ?? rpms[peak]
+  // maxRpm 是整串的最大值,常常就是脫離時的假高點,不能拿來當備援。
+  const sp = r.evalSp ?? rpms[peak]
   const accel = (rpms[peak] - rpms[1]) / accelSpan
 
   // 上升期裡有沒有哪一圈的增幅同時遠高於門檻與當下的趨勢。
