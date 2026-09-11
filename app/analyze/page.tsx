@@ -62,6 +62,19 @@ export default function Analyze() {
           看它跟著哪一個變動</strong>,不是背一條固定的規則。
         </p>
 
+        <h3 className="mt-5 font-medium">發力曲線:前 1/3 / 中 1/3 / 後 1/3</h3>
+        <p className="mt-2 text-muted">
+          把上升期按<strong className="text-ink">時間</strong>切三等份,算各段的平均角加速度,
+          就看得出這一發的力是什麼時候出去的。這是目前找到最能分辨好壞的量:583 發
+          按後段加速度分四層,最低 25% 的 SP 中位是 7,961,最高 25% 是 9,140 ——
+          相差 1,179,而且固定圈數之後依然成立。
+        </p>
+        <p className="mt-2 text-muted">
+          前段則相反,前段加速度最低的那 25% SP 反而最高 —— 起手拉得兇會提早耗掉繩長,
+          換不到轉速。同一場相隔 17 分鐘的兩組各 30 發,前段 19 vs 30、中段 118 vs 97、
+          後段 83 vs 71,SP 就是 9,487 vs 8,700。
+        </p>
+
         <h3 className="mt-5 font-medium">加速度用的是 App 自己的公式</h3>
         <p className="mt-2 text-muted">
           反推自 App 顯示的數值:(峰值 rpm − 第二筆 rpm) ÷ (峰值時間 − 第二筆時間),

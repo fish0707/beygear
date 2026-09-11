@@ -96,12 +96,16 @@ export default function ShotAnalyzer() {
     if (setA.size === 0 || setB.size === 0) return null
     const a = clean.filter((s) => setA.has(s.num))
     const b = clean.filter((s) => setB.has(s.num))
-    if (a.length < 3 || b.length < 3) return { a, b, p: NaN, pAccel: NaN }
+    if (a.length < 3 || b.length < 3) return { a, b, p: NaN, pAccel: NaN, pTail: NaN }
     return {
       a,
       b,
       p: mannWhitneyP(a.map((s) => s.sp), b.map((s) => s.sp)),
       pAccel: mannWhitneyP(a.map((s) => s.accel), b.map((s) => s.accel)),
+      pTail: mannWhitneyP(
+        a.map((s) => s.seg[2]).filter((v) => Number.isFinite(v)),
+        b.map((s) => s.seg[2]).filter((v) => Number.isFinite(v))
+      ),
     }
   }, [clean, rangeA, rangeB])
 
@@ -280,16 +284,26 @@ function Hidden({ clean }: { clean: Shot[] }) {
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.revs)), 1)}</td>
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.riseMs)))}</td>
       <td className="py-2 text-right">{fmt(median(g.map((s) => s.msPerRev)), 1)}</td>
+      {[0, 1, 2].map((i) => (
+        <td key={i} className="py-2 text-right">
+          {fmt(median(g.map((s) => s.seg[i]).filter((v) => Number.isFinite(v))))}
+        </td>
+      ))}
     </tr>
   )
 
   return (
     <section>
-      <h2 className="text-xl font-semibold">App 看不到的三個數字</h2>
+      <h2 className="text-xl font-semibold">App 看不到的數字</h2>
       <p className="mt-2 text-muted">
-        感測器每轉一圈記一筆,所以上升期的取樣點數就是**陀螺被帶動了幾圈**,
+        感測器每轉一圈記一筆,所以上升期的取樣點數就是陀螺被帶動了幾圈,
         約當這一發實際用掉的繩長;到峰值的時間則是繩子帶動陀螺的實際時長。
         把你最強的球和一般的球放在一起,差在圈數還是時間就看得出來。
+      </p>
+      <p className="mt-2 text-muted">
+        最右邊三欄是把上升期按<strong className="text-ink">時間</strong>切三等份、
+        各段的平均角加速度,也就是這一發的發力曲線長什麼樣。
+        通常最強的那一批不是前段最兇的,而是<strong className="text-ink">前段最鬆、後段最高</strong>的。
       </p>
       <table className="mt-4 w-full text-sm tabular-nums">
         <thead className="text-muted">
@@ -300,6 +314,9 @@ function Hidden({ clean }: { clean: Shot[] }) {
             <th className="py-2 text-right font-normal">圈數</th>
             <th className="py-2 text-right font-normal">上升時間</th>
             <th className="py-2 text-right font-normal">每圈耗時</th>
+            <th className="py-2 text-right font-normal">前 1/3</th>
+            <th className="py-2 text-right font-normal">中 1/3</th>
+            <th className="py-2 text-right font-normal">後 1/3</th>
           </tr>
         </thead>
         <tbody>
@@ -359,7 +376,7 @@ function CrossTable({ clean }: { clean: Shot[] }) {
   )
 }
 
-function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: number } }) {
+function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: number; pTail: number } }) {
   const sa = groupStats(ab.a)
   const sb = groupStats(ab.b)
 
@@ -393,6 +410,9 @@ function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: numbe
             <th className="py-2 text-right font-normal">圈數</th>
             <th className="py-2 text-right font-normal">上升時間</th>
             <th className="py-2 text-right font-normal">每圈耗時</th>
+            <th className="py-2 text-right font-normal">前 1/3</th>
+            <th className="py-2 text-right font-normal">中 1/3</th>
+            <th className="py-2 text-right font-normal">後 1/3</th>
           </tr>
         </thead>
         <tbody>
@@ -410,13 +430,18 @@ function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: numbe
                 <td className="py-2 text-right">{fmt(g.revsMedian, 1)}</td>
                 <td className="py-2 text-right">{fmt(g.riseMedian)}</td>
                 <td className="py-2 text-right">{fmt(g.msPerRevMedian, 1)}</td>
+                {[0, 1, 2].map((i) => (
+                  <td key={i} className="py-2 text-right">
+                    {fmt(g.segMedian[i])}
+                  </td>
+                ))}
               </tr>
             )
           })}
         </tbody>
       </table>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Stat
           label="SP 差異"
           value={`p = ${Number.isFinite(ab.p) ? ab.p.toFixed(3) : '—'}`}
@@ -427,11 +452,17 @@ function AbResult({ ab }: { ab: { a: Shot[]; b: Shot[]; p: number; pAccel: numbe
           value={`p = ${Number.isFinite(ab.pAccel) ? ab.pAccel.toFixed(3) : '—'}`}
           hint={verdict(ab.pAccel)}
         />
+        <Stat
+          label="後 1/3 加速度差異"
+          value={`p = ${Number.isFinite(ab.pTail) ? ab.pTail.toFixed(3) : '—'}`}
+          hint={verdict(ab.pTail)}
+        />
       </div>
 
       <p className="text-sm text-muted">
         加速度的 p 值通常比 SP 更早看得出變化 —— 它是輸入,SP 是結果,雜訊比較少。
-        兩組之間如果隔了很久或中間換過器材,這個數字就不能算數。
+        後 1/3 更靈敏:它只看你在繩子快抽完的時候還有沒有在加速,不會被前段的用力程度稀釋。
+        兩組之間如果隔了很久或中間換過器材,這些數字就不能算數。
       </p>
     </div>
   )

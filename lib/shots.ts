@@ -51,6 +51,18 @@ export type Shot = {
    * 11圈 12.0ms),多轉的圈是多花時間換來的,不是轉更快。
    */
   msPerRev: number
+  /**
+   * 把上升期按**時間**切三等份,每一段的平均角加速度(rpm/ms)。
+   *
+   * 這是目前找到最能分辨好壞的量。583 發分四層看後段加速度:
+   * 最低 25% 的 SP 中位是 7,961,最高 25% 是 9,140 —— 相差 1,179。
+   * 固定圈數之後依然成立,所以不是「圈數多所以 SP 高」的假象。
+   *
+   * 前段則相反:前段加速度最低的那 25% SP 反而最高。起手拉得兇會提早耗掉繩長,
+   * 換不到轉速。實測同一場相隔 17 分鐘的兩組 30 發,前段 19 vs 30、中段 118 vs 97、
+   * 後段 83 vs 71,SP 就是 9,487 vs 8,700。
+   */
+  seg: [number, number, number]
   /** 峰值那一步的斜率遠高於整段中位數 = 感測器跳點,不是真的打出來的。 */
   glitch: boolean
 }
@@ -152,6 +164,19 @@ export function toShot(r: RawRecord): Shot | null {
     glitch = excess > trend * GLITCH_TREND_RATIO
   }
 
+  // 每一圈的角加速度,時間座標取該圈的中點。
+  const segSum = [0, 0, 0]
+  const segCnt = [0, 0, 0]
+  for (let i = 1; i <= peak; i++) {
+    const dt = times[i] - times[i - 1]
+    if (dt <= 0) continue
+    const at = (times[i] + times[i - 1]) / 2 - times[0]
+    const band = Math.min(2, Math.floor((at / riseMs) * 3))
+    segSum[band] += (rpms[i] - rpms[i - 1]) / dt
+    segCnt[band] += 1
+  }
+  const seg = segSum.map((v, i) => (segCnt[i] ? v / segCnt[i] : NaN)) as [number, number, number]
+
   return {
     num: r.numShoot ?? 0,
     createdAt: r.createdAt ?? 0,
@@ -161,6 +186,7 @@ export function toShot(r: RawRecord): Shot | null {
     accel,
     ratio: accel > 0 ? sp / accel : NaN,
     msPerRev: riseMs / peak,
+    seg,
     glitch,
   }
 }
@@ -251,6 +277,8 @@ export type GroupStats = {
   revsMedian: number
   riseMedian: number
   msPerRevMedian: number
+  /** 前段 / 中段 / 後段平均角加速度的中位數。 */
+  segMedian: [number, number, number]
 }
 
 export function groupStats(shots: Shot[]): GroupStats {
@@ -262,6 +290,9 @@ export function groupStats(shots: Shot[]): GroupStats {
     revsMedian: median(shots.map((s) => s.revs)),
     riseMedian: median(shots.map((s) => s.riseMs)),
     msPerRevMedian: median(shots.map((s) => s.msPerRev)),
+    segMedian: [0, 1, 2].map((i) =>
+      median(shots.map((s) => s.seg[i]).filter((v) => Number.isFinite(v)))
+    ) as [number, number, number],
   }
 }
 
