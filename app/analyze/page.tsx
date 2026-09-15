@@ -65,14 +65,42 @@ export default function Analyze() {
         <h3 className="mt-5 font-medium">發力曲線:前 1/3 / 中 1/3 / 後 1/3</h3>
         <p className="mt-2 text-muted">
           把上升期按<strong className="text-ink">時間</strong>切三等份,算各段的平均角加速度,
-          就看得出這一發的力是什麼時候出去的。這是目前找到最能分辨好壞的量:583 發
-          按後段加速度分四層,最低 25% 的 SP 中位是 7,961,最高 25% 是 9,140 ——
-          相差 1,179,而且固定圈數之後依然成立。
+          就看得出這一發的力是什麼時候出去的。目前 948 發裡最能分辨好壞的就是
+          <strong className="text-ink">後 1/3</strong>:按它分四層,SP 中位是
+          7,961 / 8,455 / 8,761 / 9,157,而且固定圈數之後依然成立,不是「圈數多所以 SP 高」。
         </p>
         <p className="mt-2 text-muted">
-          前段則相反,前段加速度最低的那 25% SP 反而最高 —— 起手拉得兇會提早耗掉繩長,
-          換不到轉速。同一場相隔 17 分鐘的兩組各 30 發,前段 19 vs 30、中段 118 vs 97、
-          後段 83 vs 71,SP 就是 9,487 vs 8,700。
+          前段幾乎不影響結果。按中位切成 2×2 看得最清楚:
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[20rem] text-sm tabular-nums">
+            <thead className="text-muted">
+              <tr>
+                <th className="py-2 text-left font-normal"> </th>
+                <th className="py-2 text-right font-normal">後段低</th>
+                <th className="py-2 text-right font-normal">後段高</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-line">
+                <td className="py-2">前段低</td>
+                <td className="py-2 text-right">8,260</td>
+                <td className="py-2 text-right text-good">9,009</td>
+              </tr>
+              <tr className="border-t border-line">
+                <td className="py-2">前段高</td>
+                <td className="py-2 text-right">8,223</td>
+                <td className="py-2 text-right text-good">8,949</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-muted">
+          後段高低差 750;前段在固定後段之後只差 37–60。所以起手用不用力不是重點,
+          <strong className="text-ink">繩子快抽完的時候還有沒有在加速才是</strong>。
+          兩場完全相反的動作可以印證:一場前段 22、9.5 圈、上升 124ms,另一場前段 96、
+          9 圈、上升 93ms,SP 中位 9,102 vs 9,025(p = 0.72)—— 一模一樣,而它們唯一的
+          共同點就是後段都高。
         </p>
 
         <h3 className="mt-5 font-medium">加速度用的是 App 自己的公式</h3>
