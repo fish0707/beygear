@@ -96,11 +96,44 @@ export default function Analyze() {
           </table>
         </div>
         <p className="mt-3 text-muted">
-          後段高低差 750;前段在固定後段之後只差 37–60。所以起手用不用力不是重點,
-          <strong className="text-ink">繩子快抽完的時候還有沒有在加速才是</strong>。
-          兩場完全相反的動作可以印證:一場前段 22、9.5 圈、上升 124ms,另一場前段 96、
-          9 圈、上升 93ms,SP 中位 9,102 vs 9,025(p = 0.72)—— 一模一樣,而它們唯一的
-          共同點就是後段都高。
+          後段高低差 750;前段在固定後段之後只差 37–60。所以起手用不用力對 SP
+          <strong className="text-ink">沒有直接影響</strong>,
+          繩子快抽完的時候還有沒有在加速才有。兩場完全相反的動作可以印證:一場前段 22、
+          9.5 圈、上升 124ms,另一場前段 96、9 圈、上升 93ms,SP 中位 9,102 vs 9,025
+          (p = 0.72)—— 一模一樣,而它們唯一的共同點就是後段都高。
+        </p>
+        <p className="mt-2 text-muted">
+          但前段有一條<strong className="text-ink">間接</strong>的路:它決定圈數。
+          前段最低的那 25% 有 58% 的球能跑到 10 圈以上,前段高的三層則是 0–4%。
+          而圈數在固定後段之後仍然加分。兩者疊起來就是四個格子:
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[22rem] text-sm tabular-nums">
+            <thead className="text-muted">
+              <tr>
+                <th className="py-2 text-left font-normal"> </th>
+                <th className="py-2 text-right font-normal">後段低</th>
+                <th className="py-2 text-right font-normal">後段高</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-line">
+                <td className="py-2">9 圈</td>
+                <td className="py-2 text-right">8,232</td>
+                <td className="py-2 text-right">9,047</td>
+              </tr>
+              <tr className="border-t border-line">
+                <td className="py-2">10 圈以上</td>
+                <td className="py-2 text-right">8,787</td>
+                <td className="py-2 text-right text-good">9,339</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-muted">
+          所以會有兩套都能打到 9,000 的動作:起手鬆、換到多的圈數;或是起手硬、
+          圈數少但每圈更快。上限比較高的是前者。這也是為什麼這一頁只給你三欄數字 ——
+          同一個量在不同動作裡走不同的路,寫死成規則就會錯。
         </p>
 
         <h3 className="mt-5 font-medium">加速度用的是 App 自己的公式</h3>
