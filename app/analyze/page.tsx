@@ -70,6 +70,39 @@ export default function Analyze() {
           7,961 / 8,455 / 8,761 / 9,157,而且固定圈數之後依然成立,不是「圈數多所以 SP 高」。
         </p>
         <p className="mt-2 text-muted">
+          最乾淨的一次驗證是單一場練習的 69 發 —— 同一顆陀螺、同一個發射器、
+          同一個晚上,只按後段分層:
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[22rem] text-sm tabular-nums">
+            <thead className="text-muted">
+              <tr>
+                <th className="py-2 text-left font-normal">後 1/3 加速度</th>
+                <th className="py-2 text-right font-normal">發數</th>
+                <th className="py-2 text-right font-normal">SP 中位</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['< 65', 21, '8,342'],
+                ['65 – 78', 19, '9,191'],
+                ['78 – 88', 10, '9,804'],
+                ['≥ 88', 18, '10,238'],
+              ].map(([band, n, sp]) => (
+                <tr key={band as string} className="border-t border-line">
+                  <td className="py-2">{band as string}</td>
+                  <td className="py-2 text-right">{n as number}</td>
+                  <td className="py-2 text-right">{sp as string}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-muted">
+          一個晚上之內拉開 1,900 SP,器材、陀螺、場地全部沒變。
+        </p>
+
+        <p className="mt-4 text-muted">
           前段幾乎不影響結果。按中位切成 2×2 看得最清楚:
         </p>
         <div className="mt-3 overflow-x-auto">
@@ -169,6 +202,12 @@ export default function Analyze() {
           <li>
             SP 量的是陀螺的轉速,而轉速受陀螺本身的重量與轉動慣量影響。
             換過陀螺的資料不能直接放在一起比,偵測到多個感測器時頁面會提醒。
+          </li>
+          <li>
+            換發射器也一樣不能直接比,而且它的影響不是固定的加分 ——
+            實測同一個人換發射器,在後段低的球上是 −152(看不出差異),
+            後段中段 +230,後段高的球 +523。<strong className="text-ink">器材放大你當下的發力,
+            不會替你補上沒做出來的部分。</strong>所以比較器材的時候,要在後段相近的球之間比。
           </li>
           <li>
             圈數與上升時間加起來只能解釋一部分的 SP 變異,其餘來自這個感測器
