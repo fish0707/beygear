@@ -169,6 +169,20 @@ export default function Analyze() {
           同一個量在不同動作裡走不同的路,寫死成規則就會錯。
         </p>
 
+        <h3 className="mt-5 font-medium">用「一場裡的最大圈數」看繩子有沒有磨損</h3>
+        <p className="mt-2 text-muted">
+          PE 編織線用久了會縮短,而繩長直接決定圈數的上限 —— 所以每一場的
+          <strong className="text-ink">最大圈數</strong>是一個免費的器材耗損指標,
+          跟你當天的狀態幾乎無關。
+        </p>
+        <p className="mt-2 text-muted">
+          實測一條用了約 600 發的線:前半個月每一場的最大圈數都還有 11–12,
+          之後連續四天 372 發全部壓在 9–10,其中一天 52 發的最大值只有 9。
+          換上新發射器的第一場就回到 12。狀態會讓中位數上下跑,但
+          <strong className="text-ink">不會讓最大值連續四天都上不去</strong> ——
+          看到這種天花板就是該換線了。
+        </p>
+
         <h3 className="mt-5 font-medium">加速度用的是 App 自己的公式</h3>
         <p className="mt-2 text-muted">
           反推自 App 顯示的數值:(峰值 rpm − 第二筆 rpm) ÷ (峰值時間 − 第二筆時間),
