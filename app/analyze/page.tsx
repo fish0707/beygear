@@ -164,9 +164,49 @@ export default function Analyze() {
           </table>
         </div>
         <p className="mt-3 text-muted">
-          所以會有兩套都能打到 9,000 的動作:起手鬆、換到多的圈數;或是起手硬、
-          圈數少但每圈更快。上限比較高的是前者。這也是為什麼這一頁只給你三欄數字 ——
-          同一個量在不同動作裡走不同的路,寫死成規則就會錯。
+          <strong className="text-ink">但這條間接的路只在繩子磨損時存在。</strong>
+          同一個人換上新的發射器之後,前段從 14 拉到 105,≥10 圈的比例全程都是
+          90–100%,SP 也在四個分位間持平(9,352 / 9,778 / 9,702 / 9,752)。
+          繩子短的時候,起手用力會把有限的繩長提早花掉;繩子夠長的時候,這個代價消失。
+        </p>
+        <p className="mt-3 text-muted">
+          這一頁只給你三欄數字、不下結論,就是為了這種情況 —— 同一個量在不同器材、
+          不同動作下走完全不同的路,寫死成規則一定會錯。
+        </p>
+
+        <h3 className="mt-5 font-medium">圈數一樣時,上升時間越短越好</h3>
+        <p className="mt-2 text-muted">
+          圈數固定之後,「用多少時間走完這些圈」是另一個獨立的量。同一條新線的
+          11 圈球按上升時間分層:
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[20rem] text-sm tabular-nums">
+            <thead className="text-muted">
+              <tr>
+                <th className="py-2 text-left font-normal">上升時間</th>
+                <th className="py-2 text-right font-normal">發數</th>
+                <th className="py-2 text-right font-normal">SP 中位</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['≤ 105ms', 17, '10,107'],
+                ['105 – 120ms', 25, '10,176'],
+                ['120 – 132ms', 30, '9,752'],
+                ['> 132ms', 28, '8,600'],
+              ].map(([band, n, sp]) => (
+                <tr key={band as string} className="border-t border-line">
+                  <td className="py-2">{band as string}</td>
+                  <td className="py-2 text-right">{n as number}</td>
+                  <td className="py-2 text-right">{sp as string}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-muted">
+          超過 132ms 掉得很凶,120ms 以下就持平了 —— 所以這不是「越快越好」,
+          是<strong className="text-ink">不要讓球在中途滑行</strong>。
         </p>
 
         <h3 className="mt-5 font-medium">用「一場裡的最大圈數」看繩子有沒有磨損</h3>
